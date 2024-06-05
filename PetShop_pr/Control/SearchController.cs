@@ -4,29 +4,6 @@ using System.Collections.Generic;
 
 public static class SearchController
 {
-    // public static void SearchMenu()
-    // {
-    //     while (true)
-    //     {
-    //         Menu.CustomerMenu_Search();
-    //         string choice = Console.ReadLine();
-    //         switch (choice)
-    //         {
-    //             case "1":
-    //                 SearchProductByName();
-    //                 break;
-    //             // case "2":
-    //             //     SearchCategory();
-    //             //     break;
-    //             case "0":
-    //                 return;
-    //             default:
-    //                 Console.WriteLine("Chức năng không tồn tại ở đây");
-    //                 Console.ReadKey();
-    //                 break;
-    //         }
-    //     }
-    // }
     public static void SearchProductByName()
     {
         Console.Clear();
@@ -35,80 +12,47 @@ public static class SearchController
         using var db = new ApplicationDbContext();
         var products = db.Products.Where(p => p.Name.Contains(productName)).ToList();
         MenuController.products = products;
-        // if (products.Count == 0)
-        // {
-        //     Console.WriteLine("Not Found");
-        // }
-        // else
-        // {
-        //     Console.WriteLine("Found " + products.Count + " products");
-        //     var table = new Table();
-        //     table.AddColumn("ID");
-        //     table.AddColumn("Tên sản phẩm");
-        //     table.AddColumn("Mô tả");
-        //     table.AddColumn("Giá");
-        //     table.AddColumn("Số lượng");
-
-        //     int pageSize = 5;
-        //     int currentPage = 1;
-        //     int totalPages = (int)Math.Ceiling((double)products.Count / pageSize);
-
-        //     while (true)
-        //     {
-        //         Console.Clear();
-        //         Console.WriteLine($"Page {currentPage}/{totalPages}");
-        //         Console.WriteLine();
-
-        //         for (int i = (currentPage - 1) * pageSize; i < currentPage * pageSize && i < products.Count; i++)
-        //         {
-        //             var product = products[i];
-        //             table.AddRow(
-        //                 product.Id.ToString(),
-        //                 product.Name,
-        //                 product.Description,
-        //                 product.Price.ToString(),
-        //                 product.Stock.ToString()
-        //             );
-        //         }
-
-        //         AnsiConsole.Render(table);
-
-        //         Console.WriteLine();
-        //         Console.WriteLine("Press 'L' for previous page, 'R' for next page, or any other key to exit.");
-        //         var key = Console.ReadKey(true).Key;
-
-        //         if (key == ConsoleKey.LeftArrow && currentPage > 1)
-        //         {
-        //             currentPage--;
-        //             table.Rows.Clear();
-        //         }
-        //         else if (key == ConsoleKey.RightArrow && currentPage < totalPages)
-        //         {
-        //             currentPage++;
-        //             table.Rows.Clear();
-        //         }
-        //         else
-        //         {
-        //             break;
-        //         }
-        //     }
-        // }
-        // Console.ReadKey();
-        // return products;
     }
     public static void SearchProductByCategory()
     {
         Console.WriteLine("Nhập tên danh mục cần tìm: ");
-        string categoryName = Console.ReadLine();
+        string categoryName = Console.ReadLine().Trim(); // Xóa khoảng trắng ở đầu và cuối
+
         using var db = new ApplicationDbContext();
-        var category = db.Categories.FirstOrDefault(c => c.Name == categoryName);
+
+        // In ra giá trị của categoryName để kiểm tra
+        Console.WriteLine($"Tìm kiếm danh mục với tên: {categoryName}");
+
+        var category = db.Categories.FirstOrDefault(c => c.Name.ToLower().Contains(categoryName.ToLower()));
+
+        // In ra tất cả các danh mục để kiểm tra
+        var allCategories = db.Categories.ToList();
+        Console.WriteLine("Danh sách tất cả các danh mục trong cơ sở dữ liệu:");
+        foreach (var cat in allCategories)
+        {
+            Console.WriteLine($"- {cat.Name}");
+        }
+
         if (category == null)
         {
             Console.WriteLine("Không tìm thấy danh mục");
             Console.ReadKey();
         }
-        var products = db.Products.Where(p => p.CategoryId == category.Id).ToList();
-        MenuController.products = products;
+        else
+        {
+            var products = db.Products.Where(p => p.CategoryId == category.Id).ToList();
+            MenuController.products = products;
+
+            // In ra danh sách sản phẩm để kiểm tra
+            Console.WriteLine("Danh sách các sản phẩm trong danh mục tìm thấy:");
+            foreach (var product in products)
+            {
+                Console.WriteLine($"- {product.Name}");
+            }
+            MenuController.products = products;
+        }
+
+
     }
     public static void SearchProductByPriceRange()
     {

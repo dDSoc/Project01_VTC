@@ -35,13 +35,16 @@ public static class MenuController
                     SearchProduct();
                     break;
                 case "2":
-                    // CustomerManager.DeleteCustomer();
+                    UserController.ShowUserOrderedList();
                     break;
                 case "3":
-                    CartController.ShowCart();
+                    UserController.ShowCart();
                     break;
                 case "4":
                     // CustomerManager.ShowCustomerList();
+                    break;
+                case "5":
+                    UserController.EditProfile();
                     break;
                 case "0":
                     MainMenuController();
@@ -144,7 +147,7 @@ public static class MenuController
             }
             else
             {
-                CartController.user = user;
+                UserController.user = user;
                 // Kiểm tra mật khẩu
                 if (user.Password != password)
                 {
@@ -212,7 +215,8 @@ public static class MenuController
 
     public static void ShowProductList()
     {
-         Console.WriteLine("Found " + products.Count + " products");
+        Console.Clear();
+        Console.WriteLine("Found " + products.Count + " products");
             var table = new Table();
             table.AddColumn("ID");
             table.AddColumn("Tên sản phẩm");
@@ -247,6 +251,7 @@ public static class MenuController
                 Console.WriteLine();
                 Console.WriteLine("Press 'Left arow' for previous page, 'Right arow' for next page, or any other key to exit.");
                 Console.WriteLine("Press 'C' to create order");
+                Console.WriteLine("Press 'V' to view cart");
                 var key = Console.ReadKey(true).Key;
 
                 if (key == ConsoleKey.LeftArrow && currentPage > 1)
@@ -261,7 +266,15 @@ public static class MenuController
                 }
                 else if (key == ConsoleKey.C)
                 {
-                    CartController.AddToCart();
+                    UserController.AddToCart();
+                }
+                else if (key == ConsoleKey.V)
+                {
+                    UserController.ShowCart();
+                }
+                else if (key == ConsoleKey.Escape)
+                {
+                    break;
                 }
                 else
                 {
