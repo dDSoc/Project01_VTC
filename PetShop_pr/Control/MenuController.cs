@@ -7,6 +7,8 @@ using Spectre.Console;
 
 public static class MenuController
 {
+    public static List<Product> products = new List<Product>();
+
     //Main menu controller
     public static void MainMenuController()
     {
@@ -15,7 +17,6 @@ public static class MenuController
         {
             Menu.MainMenu();
             Login();
-            
         }
     }
 
@@ -31,13 +32,13 @@ public static class MenuController
             switch (choice)
             {
                 case "1":
-                    // CustomerManager.AddCustomer();
+                    SearchProduct();
                     break;
                 case "2":
                     // CustomerManager.DeleteCustomer();
                     break;
                 case "3":
-                    // CustomerManager.UpdateCustomer();
+                    CartController.ShowCart();
                     break;
                 case "4":
                     // CustomerManager.ShowCustomerList();
@@ -143,6 +144,7 @@ public static class MenuController
             }
             else
             {
+                CartController.user = user;
                 // Kiểm tra mật khẩu
                 if (user.Password != password)
                 {
@@ -150,14 +152,14 @@ public static class MenuController
                 }
                 else
                 {
-                    // Đăng nhập thành công
-                    AnsiConsole.Markup("[bold green]Login successful![/]");
+                    // // Đăng nhập thành công
+                    // AnsiConsole.Markup("[bold green]Login successful![/]");
                     
                     // Kiểm tra vai trò người dùng
                     switch (user.Role.ToLower())
                     {
                         case "customer":
-                            Menu.CustomerMenu();
+                            CustomerManagementMenu();
                             break;
                         case "store_manager":
                             AnsiConsole.Markup("[bold yellow]Welcome, Store Manager![/]");
@@ -175,5 +177,97 @@ public static class MenuController
             }
         }
     }
-    
+
+    public static void SearchProduct()
+    {
+        while (true)
+        {
+            Menu.CustomerMenu_Search();
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    SearchController.SearchProductByName();
+                    ShowProductList();
+                    break;
+                case "2":
+                    SearchController.SearchProductByPriceRange();
+                    ShowProductList();
+                    break;
+                case "3":
+                    SearchController.SearchProductByCategory();
+                    ShowProductList();
+                    break;
+                case "0":
+                    CustomerManagementMenu();
+                    break;
+                default:
+                    Console.WriteLine("Chức năng không tồn tại");
+                    Console.ReadKey();
+                    break;
+            }
+        }
+    }
+
+    public static void ShowProductList()
+    {
+         Console.WriteLine("Found " + products.Count + " products");
+            var table = new Table();
+            table.AddColumn("ID");
+            table.AddColumn("Tên sản phẩm");
+            table.AddColumn("Mô tả");
+            table.AddColumn("Giá");
+            table.AddColumn("Số lượng");
+
+            int pageSize = 5;
+            int currentPage = 1;
+            int totalPages = (int)Math.Ceiling((double)products.Count / pageSize);
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine($"Page {currentPage}/{totalPages}");
+                Console.WriteLine();
+
+                for (int i = (currentPage - 1) * pageSize; i < currentPage * pageSize && i < products.Count; i++)
+                {
+                    var product = products[i];
+                    table.AddRow(
+                        product.Id.ToString(),
+                        product.Name,
+                        product.Description,
+                        product.Price.ToString(),
+                        product.Stock.ToString()
+                    );
+                }
+
+                AnsiConsole.Render(table);
+
+                Console.WriteLine();
+                Console.WriteLine("Press 'Left arow' for previous page, 'Right arow' for next page, or any other key to exit.");
+                Console.WriteLine("Press 'C' to create order");
+                var key = Console.ReadKey(true).Key;
+
+                if (key == ConsoleKey.LeftArrow && currentPage > 1)
+                {
+                    currentPage--;
+                    table.Rows.Clear();
+                }
+                else if (key == ConsoleKey.RightArrow && currentPage < totalPages)
+                {
+                    currentPage++;
+                    table.Rows.Clear();
+                }
+                else if (key == ConsoleKey.C)
+                {
+                    CartController.AddToCart();
+                }
+                else
+                {
+                    break;
+                }
+            }
+    }
+
 }   
