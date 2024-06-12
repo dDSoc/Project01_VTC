@@ -5,19 +5,146 @@ using Spectre.Console;
 public static class UserController
 {
     public static User user;
+
+    //User login
+    public static void Login()
+    {
+        bool loginSuccess = false;
+        do
+        {
+            Console.Clear();
+            Menu.Panel();
+            using (var context = new ApplicationDbContext())
+            {
+                // Get login information from the user
+                var username = AnsiConsole.Ask<string>("[bold yellow]->[/] [bold]Username:[/] ");
+                var password = AnsiConsole.Prompt(
+                    new TextPrompt<string>("[bold yellow]->[/] [bold]Password:[/] ")
+                        .Secret());
+
+                // Find the user in the database
+                var user = context.Users.FirstOrDefault(u => u.Username == username);
+
+                if (user == null)
+                {
+                    AnsiConsole.Markup("[bold red]Username does not exist, input any key to Back![/]");
+                    Console.ReadKey();
+                }
+                else
+                {
+                    // Check the password
+                    if (user.Password != password)
+                    {
+                        AnsiConsole.Markup("[bold red]Invalid password, input any key to Back![/]");
+                        Console.ReadKey();
+                    }
+                    else
+                    {
+                        UserController.user = user;
+                        loginSuccess = true;
+                        // Check user role
+                        switch (user.Role.ToLower())
+                        {
+                            case "customer":
+                                MenuController.CustomerManagementMenu();
+                                break;
+                            case "store_manager":
+                                // Thực hiện các hành động dành cho store manager
+                                break;
+                            case "shop_owner":
+                                // Thực hiện các hành động dành cho shop owner
+                                break;
+                            default:
+                                AnsiConsole.Markup("[bold red]Unknown role![/]");
+                                break;
+                        }
+                    }
+                }
+            }
+        } while (!loginSuccess);
+    }
+
+    //User registration
+    public static void Register()
+    {
+        using var db = new ApplicationDbContext();
+        var user = new User();
+        user.FullName = AnsiConsole.Ask<string>("Enter full name: ");
+        string email;
+        User existingUser; // Declare the existingUser variable
+        string username; // Declare the username variable
+        do
+        {
+            username = AnsiConsole.Ask<string>("Enter username: ");
+            existingUser = db.Users.FirstOrDefault(u => u.Username == username); // Assign the existingUser value
+            if (existingUser != null)
+            {
+                AnsiConsole.Markup("[bold red]Username already exists![/]");
+            }
+        } while (existingUser != null);
+        user.Username = username;
+        do
+        {
+            email = AnsiConsole.Ask<string>("Enter email: ");
+            existingUser = db.Users.FirstOrDefault(u => u.Email == email); // Assign the existingUser value
+            if (existingUser != null)
+            {
+                AnsiConsole.Markup("[bold red]Email already exists![/]");
+            }
+        } while (existingUser != null);
+        user.Email = email;
+        user.Address = AnsiConsole.Ask<string>("Enter address: ");
+        user.Password = AnsiConsole.Prompt(
+            new TextPrompt<string>("Enter password: ")
+            .Secret());
+        user.Role = "customer";
+        db.Users.Add(user);
+        db.SaveChanges();
+        UserController.user = user;
+        AnsiConsole.Markup("[bold green]Registration successful, press any key to continue[/]");
+        Console.ReadKey();
+        //Go to the customer management menu
+        MenuController.CustomerManagementMenu();
+    }
+
+    //Add product to cart
     public static void AddToCart()
     {
-        Console.WriteLine("Nhập ProductID: ");
-        int productId = int.Parse(Console.ReadLine());
-        Console.WriteLine("Nhập số lượng: ");
-        int quantity = int.Parse(Console.ReadLine());
+        if (user == null)
+        {
+            Console.WriteLine("You are not logged in.");
+            Console.WriteLine("1. Log in");
+            Console.WriteLine("2. Register a new account");
+            Console.WriteLine("0. Cancel");
+            Console.Write("Enter your choice: ");
+            int choice = int.Parse(Console.ReadLine());
+            switch (choice)
+            {
+                case 1:
+                    Login();
+                    break;
+                case 2:
+                    Register();
+                    break;
+                case 0:
+                    return;
+                default:
+                    Console.WriteLine("Invalid choice.");
+                    return;
+            }
+        }
+
+        var productId = AnsiConsole.Ask<int>("[bold green]Enter ProductID: [/]");
+        var quantity = AnsiConsole.Ask<int>("[bold green]Enter quantity: [/]");
+
         using var db = new ApplicationDbContext();
         var product = db.Products.Find(productId);
         if (product == null)
         {
-            Console.WriteLine("Không tìm thấy sản phẩm");
+            AnsiConsole.Markup("[bold red]Product not found[/]");
             return;
         }
+
         var cart = db.Carts.FirstOrDefault(c => c.ProductId == productId && c.UserId == user.Id);
         if (cart == null)
         {
@@ -36,8 +163,23 @@ public static class UserController
             cart.Quantity += quantity;
             cart.UpdatedAt = DateTime.Now;
         }
-        db.SaveChanges();
+        var confirm = AnsiConsole.Confirm("[bold green]Do you want to add this product to your cart?[/]");
+        if (confirm)
+        {
+            db.SaveChanges();
+            AnsiConsole.Markup("[bold green]Product added to cart successfully, press any key to back[/]");
+            Console.ReadKey();
+        }
+        else
+        {
+            db.Carts.Remove(cart);
+            db.SaveChanges();
+            AnsiConsole.Markup("[bold yellow]Product not added to cart, press any key to back[/]");
+            Console.ReadKey();
+        }
     }
+
+    //Show cart
     public static void ShowCart()
     {
         Console.Clear();
@@ -45,17 +187,16 @@ public static class UserController
         var carts = db.Carts.Where(c => c.UserId == user.Id).ToList();
         if (carts.Count == 0)
         {
-            Console.WriteLine("Giỏ hàng trống");
-            Console.WriteLine("Nhấn phím bất kỳ để quay lại");
-            Console.ReadKey();
+            Console.WriteLine("Empty cart");
             return;
         }
+        AnsiConsole.Markup("[bold green]Your cart \n[/]");
         var table = new Table();
-        table.AddColumn("ID");
-        table.AddColumn("Tên sản phẩm");
-        table.AddColumn("Số lượng");
-        table.AddColumn("Giá");
-        table.AddColumn("Thành tiền");
+        table.AddColumn("[bold]ID[/]");
+        table.AddColumn("[bold]Product Name[/]");
+        table.AddColumn("[bold]Quantity[/]");
+        table.AddColumn("[bold]Price[/]");
+        table.AddColumn("[bold]Total[/]");
         decimal total = 0;
         foreach (var cart in carts)
         {
@@ -70,36 +211,85 @@ public static class UserController
             total += cart.Quantity * product.Price;
         }
         AnsiConsole.Render(table);
-        Console.WriteLine($"Tổng tiền: {total.ToString("c0")}");
-        Console.WriteLine("Nhập 1 để xóa sản phẩm khỏi giỏ hàng");
-        Console.WriteLine("Nhập 2 để thanh toán");
-        Console.WriteLine("Nhập 0 để quay lại");
-        var choice = Console.ReadLine();
-        switch (choice)
-        {
-            case "1":
-                RemoveFromCart();
-                break;
-            case "2":
-                Checkout();
-                break;
-            case "0":
-                return;
-            default:
-                Console.WriteLine("Chức năng không tồn tại");
-                Console.ReadKey();
-                break;
-        }
-        Console.ReadKey();
+        AnsiConsole.Markup($"[bold green]Total:[/] [bold green]{total.ToString("c0")}\n[/]");
     }
 
+    //Cart controller
+    public static void CartController()
+    {
+        if(user == null)
+        {
+            Console.WriteLine("You are not logged in.");
+            Console.WriteLine("1. Log in");
+            Console.WriteLine("2. Register a new account");
+            Console.WriteLine("0. Back");
+            Console.Write("Enter your choice: ");
+            int choice = int.Parse(Console.ReadLine());
+            switch (choice)
+            {
+                case 1:
+                    Login();
+                    break;
+                case 2:
+                    Register();
+                    break;
+                case 0:
+                    return;
+                default:
+                    Console.WriteLine("Invalid choice.");
+                    return;
+            }
+        }
+        else
+        {
+            Console.Clear();
+            ShowCart();
+            using var db = new ApplicationDbContext();
+            var carts = db.Carts.Where(c => c.UserId == user.Id).ToList();
+            if (carts.Count == 0)
+            {
+                AnsiConsole.Markup("[bold]Cart is empty, press ESC to go back[/]");
+            }
+            else
+            {
+                AnsiConsole.Markup("[bold]Press [/][bold red]CTRL + R[/] [bold]to remove a product from the cart[/]\n");
+                AnsiConsole.Markup("[bold]Press[/][bold green] CTRL + B [/][bold]to checkout[/]\n");
+                AnsiConsole.Markup("[bold]Press[/] [bold yellow]ESC[/][bold] to exit[/]\n");
+            }
+
+            ConsoleKeyInfo keyInfo;
+            do
+            {
+                keyInfo = Console.ReadKey(true);
+                if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0)
+                {
+                    switch (keyInfo.Key)
+                    {
+                        case ConsoleKey.R:
+                            RemoveFromCart();
+                            break;
+                        case ConsoleKey.B:
+                            Checkout();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else if (keyInfo.Key == ConsoleKey.Escape)
+                {
+                    return;
+                }
+            } while (keyInfo.Key != ConsoleKey.Escape);
+            Console.ReadKey();
+        }
+    }
     private static void Checkout()
     {
         using var db = new ApplicationDbContext();
         var carts = db.Carts.Where(c => c.UserId == user.Id).ToList();
         if (carts.Count == 0)
         {
-            Console.WriteLine("Giỏ hàng trống");
+            AnsiConsole.Markup("[bold red]Empty cart[/]");
             return;
         }
         var order = new Order
@@ -130,22 +320,27 @@ public static class UserController
         order.TotalAmount = total;
         db.Carts.RemoveRange(carts);
         db.SaveChanges();
-        Console.WriteLine("Đã thanh toán thành công");
+        Console.WriteLine("Đã thanh toán thành công, nhấn phím bất kỳ để tiếp tục");
+        Console.ReadKey();
+        MenuController.CustomerManagementMenu();
     }
 
     public static void RemoveFromCart()
     {
-        Console.WriteLine("Nhập ID sản phẩm cần xóa: ");
+        Console.WriteLine("Enter the cart ID to remove: ");
         int cartId = int.Parse(Console.ReadLine());
         using var db = new ApplicationDbContext();
         var cart = db.Carts.Find(cartId);
         if (cart == null)
         {
-            Console.WriteLine("Không tìm thấy sản phẩm trong giỏ hàng");
+            AnsiConsole.Markup("[bold red]No matching cart ID found[/]");
             return;
         }
         db.Carts.Remove(cart);
         db.SaveChanges();
+        AnsiConsole.Markup("[bold green]Cart removed successfully, press any key to continue[/]");
+        Console.ReadKey();
+        CartController();
     }
     public static void UpdateCart()
     {
@@ -304,6 +499,15 @@ public static class UserController
         db.SaveChanges();
         Console.WriteLine("Cập nhật thông tin thành công");
         Console.WriteLine("Nhấn phím bất kỳ để quay lại");
+        Console.ReadKey();
+    }
+
+    public static void Logout()
+    {
+        user = null;
+        Console.Clear();
+        AnsiConsole.Markup("[bold green]Logout successful[/]");
+        AnsiConsole.Markup("[bold green]Press any key to continue[/]");
         Console.ReadKey();
     }
 }

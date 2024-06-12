@@ -3,6 +3,7 @@ using Spectre.Console;
 
 class Menu
 {
+    // Display the Welcome screen panel
     public static void Panel()
     {
          // Tạo tiêu đề lớn
@@ -21,6 +22,32 @@ class Menu
         Console.Clear();
         Panel();
     }
+
+    //Display the default menu screen
+    public static void DefaultMenu()
+    {
+        Console.Clear();
+        // Display the large title
+        var titlePanel = new Panel(new FigletText("PET SHOP").Centered().Color(Color.Aqua))
+        {
+            Border = BoxBorder.Double,
+            Header = new PanelHeader("[bold yellow]WELLCOME TO PET SHOP[/]"),
+            Padding = new Padding(1, 1),
+        };
+
+        // Display the menu table
+        var menuTable = new Table();
+        menuTable.AddColumn(new TableColumn("").LeftAligned());
+        menuTable.AddRow(titlePanel);
+        menuTable.AddRow("[bold yellow]1.[/][bold] Search[/]");
+        menuTable.AddRow("[bold yellow]2.[/][bold] Login[/]");
+        menuTable.AddRow("[bold yellow]3.[/][bold] Register[/]");
+        menuTable.AddRow("[bold yellow]0.[/][bold] Exit[/]");
+
+        AnsiConsole.Write(menuTable);
+    }
+
+
     public static void CustomerMenu()
     {
         Console.Clear();
@@ -41,12 +68,9 @@ class Menu
         menuTable.AddRow("[bold yellow]3.[/][bold] View cart[/]");
         menuTable.AddRow("[bold yellow]4.[/][bold] Your vouchers[/]");
         menuTable.AddRow("[bold yellow]5.[/][bold] Edit your info[/]");
-        menuTable.AddRow("[bold yellow]0.[/][bold] Back[/]");
+        menuTable.AddRow("[bold yellow]0.[/][bold] Log out[/]");
 
         AnsiConsole.Write(menuTable);
-
-        // Nhận lựa chọn của người dùng
-        Console.WriteLine($"Enter your choice:");
     }
 
     public static void CustomerMenu_Search()
@@ -88,47 +112,6 @@ class Menu
 
         AnsiConsole.Write(menuTable);
         var choice = AnsiConsole.Ask<string>("[yellow]Enter your choice: [/]");
-    }
-
-    public static void TestMenu()
-    {
-        // Thông tin đơn hàng
-        var orderInfoTable = new Table();
-        orderInfoTable.AddColumn("Order ID");
-        orderInfoTable.AddColumn("Customer Name");
-        orderInfoTable.AddColumn("Customer Phone");
-        orderInfoTable.AddColumn("Address");
-        orderInfoTable.AddRow("7", "Ma Van Truong", "0901234567", "Bac Giang");
-
-        // Thông tin sản phẩm
-        var productTable = new Table();
-        productTable.AddColumn("No");
-        productTable.AddColumn("Laptop Name");
-        productTable.AddColumn("Price(VND)");
-        productTable.AddColumn("Quantity");
-        productTable.AddColumn("Amount(VND)");
-        productTable.AddRow("1", "ASUS TUF Gaming F15 FX506HC HN002T", "21,990,000", "1", "21,990,000");
-
-        // Tổng thanh toán
-        var totalPaymentTable = new Table();
-        totalPaymentTable.AddColumn("TOTAL PAYMENT");
-        totalPaymentTable.AddRow("21,990,000");
-
-        // Tạo bảng lồng trong bảng
-        var mainTable = new Table();
-        mainTable.AddColumn(new TableColumn("Order Information").Centered().Header("[bold yellow]ORDER INFORMATION[/]"));
-        mainTable.AddRow(orderInfoTable);
-        mainTable.AddEmptyRow();
-        mainTable.AddRow(productTable);
-        mainTable.AddEmptyRow();
-        mainTable.AddRow(totalPaymentTable);
-
-        // Hiển thị bảng lồng nhau
-        AnsiConsole.Write(mainTable);
-
-        // Hiển thị hướng dẫn
-        AnsiConsole.MarkupLine("[yellow]* Enter money to PAYMENT (enter 0 to skip) or Press combination CTRL + X to CANCEL ORDER or press 'ESC' to EXIT[/]");
-        var money = AnsiConsole.Ask<string>("[yellow]Enter money: [/]");
     }
 
     public static void StoreManagerMenu()

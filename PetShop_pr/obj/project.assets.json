@@ -2,6 +2,15 @@
   "version": 3,
   "targets": {
     "net8.0": {
+      "ConsoleGraphics/0.1.4": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/ConsoleGraphics.dll": {}
+        },
+        "runtime": {
+          "lib/net6.0/ConsoleGraphics.dll": {}
+        }
+      },
       "Humanizer.Core/2.14.1": {
         "type": "package",
         "compile": {
@@ -878,6 +887,21 @@
     }
   },
   "libraries": {
+    "ConsoleGraphics/0.1.4": {
+      "sha512": "Rt3X3NIfwso3GzE2qnOIT7W5EKwiQwC+v+0JtFYOjgzAY7zgNG5nOPryOazQTd4hR2w62Tn2RGISD/S3ij62KQ==",
+      "type": "package",
+      "path": "consolegraphics/0.1.4",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.md",
+        "README.md",
+        "consolegraphics.0.1.4.nupkg.sha512",
+        "consolegraphics.nuspec",
+        "icon.png",
+        "lib/net6.0/ConsoleGraphics.dll"
+      ]
+    },
     "Humanizer.Core/2.14.1": {
       "sha512": "lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
       "type": "package",
@@ -2294,6 +2318,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "ConsoleGraphics >= 0.1.4",
       "Microsoft.EntityFrameworkCore >= 8.0.6",
       "Microsoft.EntityFrameworkCore.Design >= 8.0.6",
       "Pomelo.EntityFrameworkCore.MySql >= 8.0.2",
@@ -2342,6 +2367,10 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
+          "ConsoleGraphics": {
+            "target": "Package",
+            "version": "[0.1.4, )"
+          },
           "Microsoft.EntityFrameworkCore": {
             "target": "Package",
             "version": "[8.0.6, )"

@@ -15,8 +15,8 @@ public static class MenuController
     
         while (true)
         {
-            Menu.MainMenu();
-            Login();
+            Menu.DefaultMenu();
+            DefaultMenuController();
         }
     }
 
@@ -26,7 +26,7 @@ public static class MenuController
         while(true)
         {
             Menu.CustomerMenu();
-
+            AnsiConsole.MarkupLine("[bold green]Enter your choice:[/]");
             string choice = Console.ReadLine();
 
             switch (choice)
@@ -38,19 +38,20 @@ public static class MenuController
                     UserController.ShowUserOrderedList();
                     break;
                 case "3":
-                    UserController.ShowCart();
+                    UserController.CartController();
                     break;
                 case "4":
-                    // CustomerManager.ShowCustomerList();
+                    // UserController.ShowVoucher();
                     break;
                 case "5":
                     UserController.EditProfile();
                     break;
                 case "0":
+                    UserController.Logout();
                     MainMenuController();
                     break;
                 default:
-                    Console.WriteLine("Chức năng không tồn tại");
+                    AnsiConsole.MarkupLine("[bold yellow]Function does not exist\n[/]Press any key to continue");
                     Console.ReadKey();
                     break;
             }
@@ -94,92 +95,6 @@ public static class MenuController
         }
     }
 
-    //Order management menu controller
-    public static void OrderManagementMenu()
-    {
-        while(true)
-        {
-            // Menu.OrderMenu();
-
-            string choice = Console.ReadLine();
-
-            switch (choice)
-            {
-                case "1":
-                    // OderManager.AddOrder();
-                    break;
-                case "2":
-                    // OderManager.DeleteOrder();
-                    break;
-                case "3":
-                    // OderManager.UpdateOrder();
-                    break;
-                case "4":
-                    // OderManager.ShowOrderList();
-                    break;
-                case "0":
-                    MainMenuController();
-                    break;
-                default:
-                    Console.WriteLine("Chức năng không tồn tại");
-                    Console.ReadKey();
-                    break;
-            }
-        }
-    }
-
-    public static void Login()
-    {
-        using (var context = new ApplicationDbContext())
-        {
-            // Lấy thông tin đăng nhập từ người dùng
-            var username = AnsiConsole.Ask<string>("[bold yellow]->[/] [bold]Username:[/] ");
-            var password = AnsiConsole.Prompt(
-                new TextPrompt<string>("[bold yellow]->[/] [bold]Password:[/] ")
-                    .Secret());
-
-            // Tìm người dùng trong cơ sở dữ liệu
-            var user = context.Users.FirstOrDefault(u => u.Username == username);
-
-            if (user == null)
-            {
-                AnsiConsole.Markup("[bold red]Username does not exist![/]");
-            }
-            else
-            {
-                UserController.user = user;
-                // Kiểm tra mật khẩu
-                if (user.Password != password)
-                {
-                    AnsiConsole.Markup("[bold red]Invalid password![/]");
-                }
-                else
-                {
-                    // // Đăng nhập thành công
-                    // AnsiConsole.Markup("[bold green]Login successful![/]");
-                    
-                    // Kiểm tra vai trò người dùng
-                    switch (user.Role.ToLower())
-                    {
-                        case "customer":
-                            CustomerManagementMenu();
-                            break;
-                        case "store_manager":
-                            AnsiConsole.Markup("[bold yellow]Welcome, Store Manager![/]");
-                            // Thực hiện các hành động dành cho store manager
-                            break;
-                        case "shop_owner":
-                            AnsiConsole.Markup("[bold yellow]Welcome, Shop Owner![/]");
-                            // Thực hiện các hành động dành cho shop owner
-                            break;
-                        default:
-                            AnsiConsole.Markup("[bold red]Unknown role![/]");
-                            break;
-                    }
-                }
-            }
-        }
-    }
 
     public static void SearchProduct()
     {
@@ -203,7 +118,14 @@ public static class MenuController
                     ShowProductList();
                     break;
                 case "0":
-                    CustomerManagementMenu();
+                    if(UserController.user == null)
+                    {
+                        DefaultMenuController();
+                    }
+                    else
+                    {
+                        CustomerManagementMenu();
+                    }
                     break;
                 default:
                     Console.WriteLine("Chức năng không tồn tại");
@@ -270,7 +192,7 @@ public static class MenuController
                 }
                 else if (key == ConsoleKey.V)
                 {
-                    UserController.ShowCart();
+                    UserController.CartController();
                 }
                 else if (key == ConsoleKey.Escape)
                 {
@@ -283,4 +205,34 @@ public static class MenuController
             }
     }
 
+
+    public static void DefaultMenuController()
+    {
+        while (true)
+        {
+            Menu.DefaultMenu();
+            Console.WriteLine("Enter your choice: ");
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    SearchProduct();
+                    break;
+                case "2":
+                    UserController.Login();
+                    break;
+                case "3":
+                    UserController.Register();
+                    break;
+                case "0":
+                    Environment.Exit(0);
+                    break;
+                default:
+                    Console.WriteLine("Chức năng không tồn tại");
+                    Console.ReadKey();
+                    break;
+            }
+        }
+    }
 }   

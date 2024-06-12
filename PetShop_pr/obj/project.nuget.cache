@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "lmAQkVFlIZg=",
+  "dgSpecHash": "roPLnO9ARwM=",
   "success": true,
   "projectFilePath": "/Users/phamthidung/Documents/Lap_trinh/Project01_VTC/Project01_VTC/PetShop_pr/PetShop_pr.csproj",
   "expectedPackageFiles": [
+    "/Users/phamthidung/.nuget/packages/consolegraphics/0.1.4/consolegraphics.0.1.4.nupkg.sha512",
     "/Users/phamthidung/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/Users/phamthidung/.nuget/packages/microsoft.bcl.asyncinterfaces/6.0.0/microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512",
     "/Users/phamthidung/.nuget/packages/microsoft.codeanalysis.analyzers/3.3.3/microsoft.codeanalysis.analyzers.3.3.3.nupkg.sha512",
