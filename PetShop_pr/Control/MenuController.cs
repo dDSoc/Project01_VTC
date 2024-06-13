@@ -44,14 +44,14 @@ public static class MenuController
                     // UserController.ShowVoucher();
                     break;
                 case "5":
-                    UserController.EditProfile();
+                    UserController.EditProfileController();
                     break;
                 case "0":
                     UserController.Logout();
                     MainMenuController();
                     break;
                 default:
-                    AnsiConsole.MarkupLine("[bold yellow]Function does not exist\n[/]Press any key to continue");
+                    AnsiConsole.MarkupLine("[bold yellow]Function does not exist, press any key to continue[/]");
                     Console.ReadKey();
                     break;
             }
@@ -107,15 +107,15 @@ public static class MenuController
             {
                 case "1":
                     SearchController.SearchProductByName();
-                    ShowProductList();
+                    ShowProductListResult();
                     break;
                 case "2":
                     SearchController.SearchProductByPriceRange();
-                    ShowProductList();
+                    ShowProductListResult();
                     break;
                 case "3":
                     SearchController.SearchProductByCategory();
-                    ShowProductList();
+                    ShowProductListResult();
                     break;
                 case "0":
                     if(UserController.user == null)
@@ -128,24 +128,22 @@ public static class MenuController
                     }
                     break;
                 default:
-                    Console.WriteLine("Chức năng không tồn tại");
+                    AnsiConsole.MarkupLine("[bold yellow]Function does not exist, press any key to continue[/]");
                     Console.ReadKey();
                     break;
             }
         }
     }
 
-    public static void ShowProductList()
+    public static void ShowProductListResult()
     {
         Console.Clear();
-        Console.WriteLine("Found " + products.Count + " products");
-            var table = new Table();
-            table.AddColumn("ID");
-            table.AddColumn("Tên sản phẩm");
-            table.AddColumn("Mô tả");
-            table.AddColumn("Giá");
-            table.AddColumn("Số lượng");
-
+        if(products.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[bold yellow]No product found! Press any key to continue[/]");
+            Console.ReadKey();
+            return;
+        }
             int pageSize = 5;
             int currentPage = 1;
             int totalPages = (int)Math.Ceiling((double)products.Count / pageSize);
@@ -153,6 +151,13 @@ public static class MenuController
             while (true)
             {
                 Console.Clear();
+                Console.WriteLine("Found " + products.Count + " products");
+                var table = new Table();
+                table.AddColumn("[bold]ID[/]");
+                table.AddColumn("[bold]Tên sản phẩm[/]");
+                table.AddColumn("[bold]Mô tả[/]");
+                table.AddColumn("[bold]Giá[/]");
+                table.AddColumn("[bold]Số lượng[/]");
                 Console.WriteLine($"Page {currentPage}/{totalPages}");
                 Console.WriteLine();
 
@@ -171,38 +176,72 @@ public static class MenuController
                 AnsiConsole.Render(table);
 
                 Console.WriteLine();
-                Console.WriteLine("Press 'Left arow' for previous page, 'Right arow' for next page, or any other key to exit.");
-                Console.WriteLine("Press 'C' to create order");
-                Console.WriteLine("Press 'V' to view cart");
-                var key = Console.ReadKey(true).Key;
+                AnsiConsole.MarkupLine("[bold]Press '[/][bold red]CTRL + P[/][bold]' for previous page, '[/][bold red]CTRL + N[/][bold]' for next page[/]");
+                AnsiConsole.MarkupLine("[bold]Press '[/][bold green]CTRL + A[/][bold]' to add to cart[/]");
+                AnsiConsole.MarkupLine("[bold]Press '[/][bold green]CTRL + L[/][bold]' to view cart[/]");
+                AnsiConsole.MarkupLine("[bold]Press [yellow]ESC[/] key to exit.[/]");
 
-                if (key == ConsoleKey.LeftArrow && currentPage > 1)
+                var keyInfo = Console.ReadKey(true);
+                if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0)
                 {
-                    currentPage--;
-                    table.Rows.Clear();
-                }
-                else if (key == ConsoleKey.RightArrow && currentPage < totalPages)
-                {
-                    currentPage++;
-                    table.Rows.Clear();
-                }
-                else if (key == ConsoleKey.C)
-                {
-                    UserController.AddToCart();
-                }
-                else if (key == ConsoleKey.V)
-                {
-                    UserController.CartController();
-                }
-                else if (key == ConsoleKey.Escape)
-                {
-                    break;
-                }
-                else
-                {
-                    break;
-                }
+                    switch (keyInfo.Key)
+                    {
+                        case ConsoleKey.P:
+                            if (currentPage > 1)
+                            {
+                                currentPage--;
+                                table.Rows.Clear();
+                            }
+                            break;
+                        case ConsoleKey.N:
+                            if (currentPage < totalPages)
+                            {
+                                currentPage++;
+                                table.Rows.Clear();
+                            }
+                            break;
+                        case ConsoleKey.A:
+                            UserController.AddToCart();
+                            break;
+                        case ConsoleKey.L:
+                            UserController.CartController();
+                            break;
+                        // default:
+                        //     break;
+                    }
+                // var key = Console.ReadKey(true).Key;
+                // if (key == ConsoleKey.LeftArrow && currentPage > 1)
+                // {
+                //     currentPage--;
+                //     table.Rows.Clear();
+                // }
+                // else if (key == ConsoleKey.RightArrow && currentPage < totalPages)
+                // {
+                //     currentPage++;
+                //     table.Rows.Clear();
+                // }
+                // else if (key == ConsoleKey.C)
+                // {
+                //     UserController.AddToCart();
+                // }
+                // else if (key == ConsoleKey.V)
+                // {
+                //     UserController.CartController();
+                // }
+                // else if (key == ConsoleKey.Escape)
+                // {
+                //     break;
+                // }
+                // else
+                // {
+                //     break;
+                // }
             }
+            else if (keyInfo.Key == ConsoleKey.Escape)
+            {
+                return;
+            }
+    }
     }
 
 
@@ -211,7 +250,7 @@ public static class MenuController
         while (true)
         {
             Menu.DefaultMenu();
-            Console.WriteLine("Enter your choice: ");
+            AnsiConsole.MarkupLine("[bold green]Enter your choice:[/]");
             string choice = Console.ReadLine();
 
             switch (choice)
@@ -229,7 +268,8 @@ public static class MenuController
                     Environment.Exit(0);
                     break;
                 default:
-                    Console.WriteLine("Chức năng không tồn tại");
+                    Console.WriteLine("");
+                    AnsiConsole.MarkupLine("[bold yellow]Function does not exist, press any key to continue[/]");
                     Console.ReadKey();
                     break;
             }

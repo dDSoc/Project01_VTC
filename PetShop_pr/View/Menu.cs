@@ -9,7 +9,7 @@ class Menu
          // Tạo tiêu đề lớn
         var panel = new Panel(new FigletText("PET SHOP").Centered().Color(Color.Aqua))
         {
-            Border = BoxBorder.Double,
+            Border = BoxBorder.Square,
             Padding = new Padding(1, 1),
         };
 
@@ -17,34 +17,50 @@ class Menu
         AnsiConsole.Write(panel);
     }
 
-    public static void MainMenu()
-    {
-        Console.Clear();
-        Panel();
-    }
-
     //Display the default menu screen
     public static void DefaultMenu()
     {
         Console.Clear();
         // Display the large title
-        var titlePanel = new Panel(new FigletText("PET SHOP").Centered().Color(Color.Aqua))
+         var panel = new Panel(new FigletText("PET SHOP").Centered().Color(Color.Aqua))
         {
-            Border = BoxBorder.Double,
-            Header = new PanelHeader("[bold yellow]WELLCOME TO PET SHOP[/]"),
-            Padding = new Padding(1, 1),
+            Border = BoxBorder.None,
+            Padding = new Padding(1, 1, 1, 1),
+            Header = new PanelHeader("[yellow]Welcome to Pet Shop[/]").Centered(),
         };
+        var table1 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table1.AddColumn(new TableColumn("[bold yellow]1.[/][bold] Search[/]"));
+        table1.Expand();
+        var table2 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table2.AddColumn(new TableColumn("[bold yellow]2.[/][bold] Login[/]"));
+        table2.Expand();
 
-        // Display the menu table
-        var menuTable = new Table();
-        menuTable.AddColumn(new TableColumn("").LeftAligned());
-        menuTable.AddRow(titlePanel);
-        menuTable.AddRow("[bold yellow]1.[/][bold] Search[/]");
-        menuTable.AddRow("[bold yellow]2.[/][bold] Login[/]");
-        menuTable.AddRow("[bold yellow]3.[/][bold] Register[/]");
-        menuTable.AddRow("[bold yellow]0.[/][bold] Exit[/]");
+        var table3 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table3.AddColumn(new TableColumn("[bold yellow]3.[/][bold] Register[/]"));
+        table3.Expand();
+        var table4 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table4.AddColumn(new TableColumn("[bold yellow]0.[/][bold] Exit[/]"));
+        table4.Expand();
+        var mainTable = new Table();
+        mainTable.AddColumn(new TableColumn(panel));
+        mainTable.AddRow(table1);
+        mainTable.AddRow(table2);
+        mainTable.AddRow(table3);
+        mainTable.AddRow(table4);
 
-        AnsiConsole.Write(menuTable);
+        AnsiConsole.Write(mainTable);
     }
 
 
@@ -52,66 +68,112 @@ class Menu
     {
         Console.Clear();
         // Tạo tiêu đề lớn
-        var titlePanel = new Panel(new FigletText("PET SHOP").Centered().Color(Color.Aqua))
+        var panel = new Panel(new FigletText("PET SHOP").Centered().Color(Color.Aqua))
         {
-            Border = BoxBorder.Double,
-            Header = new PanelHeader("[bold yellow]WELLCOME TO PET SHOP[/]"),
-            Padding = new Padding(1, 1),
+            Border = BoxBorder.None,
+            Padding = new Padding(1, 1, 1, 1),
+            Header = new PanelHeader("[bold yellow]WELLCOME TO PET SHOP[/]").Centered(),
         };
+        var table1 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table1.AddColumn(new TableColumn("[bold yellow]1.[/][bold] Search[/]"));
+        table1.Expand();
+        var table2 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table2.AddColumn(new TableColumn("[bold yellow]2.[/][bold] Show odered list[/]"));
+        table2.Expand();
 
-        // Tạo bảng menu
-        var menuTable = new Table();
-        menuTable.AddColumn(new TableColumn("").LeftAligned());
-        menuTable.AddRow(titlePanel);
-        menuTable.AddRow("[bold yellow]1.[/][bold] Search[/]");
-        menuTable.AddRow("[bold yellow]2.[/][bold] Show odered list[/]");
-        menuTable.AddRow("[bold yellow]3.[/][bold] View cart[/]");
-        menuTable.AddRow("[bold yellow]4.[/][bold] Your vouchers[/]");
-        menuTable.AddRow("[bold yellow]5.[/][bold] Edit your info[/]");
-        menuTable.AddRow("[bold yellow]0.[/][bold] Log out[/]");
+        var table3 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table3.AddColumn(new TableColumn("[bold yellow]3.[/][bold] View cart[/]"));
+        table3.Expand();
+        var table4 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table4.AddColumn(new TableColumn("[bold yellow]4.[/][bold] Your vouchers[/]"));
+        table4.Expand();
+        var table5 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table5.AddColumn(new TableColumn("[bold yellow]5.[/][bold] Edit your info[/]"));
+        table5.Expand();
+        var table6 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table6.AddColumn(new TableColumn("[bold yellow]0.[/][bold] Log out[/]"));
+        table6.Expand();
+        var mainTable = new Table();
+        mainTable.AddColumn(new TableColumn(panel));
+        mainTable.AddRow(table1);
+        mainTable.AddRow(table2);
+        mainTable.AddRow(table3);
+        mainTable.AddRow(table4);
+        mainTable.AddRow(table5);
+        mainTable.AddRow(table6);
 
-        AnsiConsole.Write(menuTable);
+        AnsiConsole.Write(mainTable);
     }
 
     public static void CustomerMenu_Search()
     {
         Console.Clear();
-        // Hiển thị thông tin đã nhập
-        var table = new Table();
-        table.AddColumn(new TableColumn("Search menu").LeftAligned());
-
-        table.AddRow($"[bold yellow]1.[/] [bold]Search by name[/] ");
-        table.AddRow($"[bold yellow]2.[/] [bold]Search by price[/]");
-        table.AddRow($"[bold yellow]3.[/] [bold]Search by category[/]");
-        table.AddRow($"[bold yellow]0.[/] [bold]Back[/]");
-
-        AnsiConsole.Write(table);
-
-        Console.WriteLine("Enter your choice:");
-
-    }
-
-    public static void SubSearchMenu()
-    {
-        Console.Clear();
-        // Tạo tiêu đề lớn
-        var titlePanel = new Panel(new FigletText("LAPTOP STORE").Centered().Color(Color.Aqua))
+        var panel = new Panel(new FigletText("PET SHOP").Centered().Color(Color.Aqua))
         {
-            Border = BoxBorder.Double,
-            Padding = new Padding(1, 1),
+            Border = BoxBorder.None,
+            Padding = new Padding(1, 1, 1, 1),
         };
+        var table = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table.AddColumn(new TableColumn("[bold green]Search Product[/]").Centered()).BorderColor(Color.Green);
+        table.Expand();
+        var table1 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table1.AddColumn(new TableColumn("[bold yellow]1.[/][bold] Search by name[/]"));
+        table1.Expand();
+        var table2 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table2.AddColumn(new TableColumn("[bold yellow]2.[/][bold] Search by price[/]"));
+        table2.Expand();
 
-        // Tạo bảng menu
-        var menuTable = new Table();
-        menuTable.AddColumn(new TableColumn("").LeftAligned());
-        menuTable.AddRow(titlePanel);
-        menuTable.AddRow("[bold yellow]1.[/][bold] Search by name[/]");
-        menuTable.AddRow("[bold yellow]2.[/][bold] Search by price[/]");
-        menuTable.AddRow("[bold yellow]3.[/][bold] Search by category[/]");
-        menuTable.AddRow("[bold yellow]4.[/][bold] Back[/]");
+        var table3 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table3.AddColumn(new TableColumn("[bold yellow]3.[/][bold] Search by category[/]"));
+        table3.Expand();
+        var table4 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table4.AddColumn(new TableColumn("[bold yellow]0.[/][bold] Back[/]"));
+        table4.Expand();
+        var mainTable = new Table();
+        mainTable.AddColumn(new TableColumn(panel));
+        mainTable.AddRow(table);
+        mainTable.AddRow(table1);
+        mainTable.AddRow(table2);
+        mainTable.AddRow(table3);
+        mainTable.AddRow(table4);
 
-        AnsiConsole.Write(menuTable);
-        var choice = AnsiConsole.Ask<string>("[yellow]Enter your choice: [/]");
+        AnsiConsole.Write(mainTable);
+
+        AnsiConsole.MarkupLine("[bold green]Enter your choice:[/]");
+
     }
 
     public static void StoreManagerMenu()
@@ -127,7 +189,7 @@ class Menu
         table.AddRow($"[bold yellow]4.[/] [bold]View product list[/]");
 
         AnsiConsole.Write(table);
-        Console.WriteLine("Enter your choice:");
+        AnsiConsole.MarkupLine("[bold green]Enter your choice:[/]");
     }
 
     public static void ShopOwnerMenu()
@@ -142,6 +204,65 @@ class Menu
 
 
         AnsiConsole.Write(table);
-        Console.WriteLine("Enter your choice:");
+        AnsiConsole.MarkupLine("[bold green]Enter your choice:[/]");
+    }
+    public static void LoginMenu()
+    {
+        Console.Clear();
+        // Display the large title
+        var panel = new Panel(new FigletText("PET SHOP").Centered().Color(Color.Aqua))
+        {
+            Border = BoxBorder.Square,
+            Padding = new Padding(1, 1),
+            Header = new PanelHeader("[bold yellow]LOGIN[/]"),
+        };
+
+        AnsiConsole.Write(panel);
+    }
+    public static void RequireLoginMenu()
+    {
+        Console.Clear();
+        var panel = new Panel(new FigletText("PET SHOP").Centered().Color(Color.Aqua))
+        {
+            Border = BoxBorder.None,
+            Padding = new Padding(1, 1, 1, 1),
+        };
+        var table1 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table1.AddColumn(new TableColumn("[bold red]You are not logged in.[/]").Centered()).BorderColor(Color.Red);
+        table1.Expand();
+        var table2 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table2.AddColumn(new TableColumn("[bold yellow]1. Log in[/]"));
+        table2.Expand();
+        var table3 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        
+        table3.AddColumn(new TableColumn("[bold yellow]2. Register a new account[/]"));
+        table3.Expand();
+
+        var table4 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table4.AddColumn(new TableColumn("[bold yellow]0. Cancel[/]"));
+        table4.Expand();
+
+
+        var mainTable = new Table();
+        mainTable.AddColumn(new TableColumn(panel));
+        mainTable.AddRow(table1);
+        mainTable.AddRow(table2);
+        mainTable.AddRow(table3);
+        mainTable.AddRow(table4);
+
+        AnsiConsole.Write(mainTable);
+        AnsiConsole.Markup("[bold green]Enter your choice: [/]\n");
     }
 }

@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Reflection.Emit;
 using Spectre.Console;
+using System.Text.RegularExpressions;
 
 public static class UserController
 {
@@ -13,13 +16,13 @@ public static class UserController
         do
         {
             Console.Clear();
-            Menu.Panel();
+            Menu.LoginMenu();
             using (var context = new ApplicationDbContext())
             {
                 // Get login information from the user
-                var username = AnsiConsole.Ask<string>("[bold yellow]->[/] [bold]Username:[/] ");
+                var username = AnsiConsole.Ask<string>("[bold Aqua]->[/] [bold Aqua]Username:[/] ");
                 var password = AnsiConsole.Prompt(
-                    new TextPrompt<string>("[bold yellow]->[/] [bold]Password:[/] ")
+                    new TextPrompt<string>("[bold Aqua]->[/] [bold Aqua]Password:[/] ")
                         .Secret());
 
                 // Find the user in the database
@@ -69,35 +72,68 @@ public static class UserController
     {
         using var db = new ApplicationDbContext();
         var user = new User();
-        user.FullName = AnsiConsole.Ask<string>("Enter full name: ");
+        user.FullName = AnsiConsole.Ask<string>("[bold green]Enter full name: [/]");
         string email;
         User existingUser; // Declare the existingUser variable
         string username; // Declare the username variable
         do
         {
-            username = AnsiConsole.Ask<string>("Enter username: ");
+            username = AnsiConsole.Ask<string>("[bold green]Enter username: [/]");
             existingUser = db.Users.FirstOrDefault(u => u.Username == username); // Assign the existingUser value
             if (existingUser != null)
             {
-                AnsiConsole.Markup("[bold red]Username already exists![/]");
+                AnsiConsole.MarkupLine("[bold red]Username already exists![/]");
             }
         } while (existingUser != null);
         user.Username = username;
         do
         {
-            email = AnsiConsole.Ask<string>("Enter email: ");
+            email = AnsiConsole.Ask<string>("[bold green]Enter email: [/]");
             existingUser = db.Users.FirstOrDefault(u => u.Email == email); // Assign the existingUser value
             if (existingUser != null)
             {
-                AnsiConsole.Markup("[bold red]Email already exists![/]");
+            AnsiConsole.MarkupLine("[bold red]Email already exists![/]");
             }
-        } while (existingUser != null);
+            else if (!IsValidEmail(email))
+            {
+            AnsiConsole.MarkupLine("[bold red]Invalid email format![/]");
+            }
+        } while (existingUser != null || !IsValidEmail(email));
         user.Email = email;
-        user.Address = AnsiConsole.Ask<string>("Enter address: ");
-        user.Password = AnsiConsole.Prompt(
-            new TextPrompt<string>("Enter password: ")
+        user.Address = AnsiConsole.Ask<string>("[bold green]Enter address: [/]");
+        while (string.IsNullOrEmpty(user.Address))
+        {
+            AnsiConsole.MarkupLine("[bold red]Address cannot be empty![/]");
+            user.Address = AnsiConsole.Ask<string>("[bold green]Enter address: [/]");
+        }
+        string password;
+        string passwordConfirm;
+        do
+        {
+            password = AnsiConsole.Prompt(
+            new TextPrompt<string>("[bold green]Enter password: [/]")
             .Secret());
+            passwordConfirm = AnsiConsole.Prompt(
+            new TextPrompt<string>("[bold green]Confirm password: [/]")
+            .Secret());
+            if (password != passwordConfirm)
+            {
+            AnsiConsole.MarkupLine("[bold red]Passwords do not match, please try again![/]");
+            }
+        } while (password != passwordConfirm);
+        user.Password = password;
         user.Role = "customer";
+        string confirm = AnsiConsole.Prompt(
+            new TextPrompt<string>("[bold green]Do you want to register this account? (Y/N): [/]")
+            .AllowEmpty()
+            .Validate(choice =>
+            {
+                if (choice.ToUpper() != "Y" && choice.ToUpper() != "N")
+                {
+                    return ValidationResult.Error("[bold red]Invalid choice, please enter Y or N[/]");
+                }
+                return ValidationResult.Success();
+            }));
         db.Users.Add(user);
         db.SaveChanges();
         UserController.user = user;
@@ -111,26 +147,26 @@ public static class UserController
     public static void AddToCart()
     {
         if (user == null)
-        {
-            Console.WriteLine("You are not logged in.");
-            Console.WriteLine("1. Log in");
-            Console.WriteLine("2. Register a new account");
-            Console.WriteLine("0. Cancel");
-            Console.Write("Enter your choice: ");
-            int choice = int.Parse(Console.ReadLine());
-            switch (choice)
+        {   
+            while (true)
             {
-                case 1:
-                    Login();
-                    break;
-                case 2:
-                    Register();
-                    break;
-                case 0:
-                    return;
-                default:
-                    Console.WriteLine("Invalid choice.");
-                    return;
+                Menu.RequireLoginMenu();
+                string choice = Console.ReadLine();
+                switch (choice)
+                {
+                    case "1":
+                        Login();
+                        return;
+                    case "2":
+                        Register();
+                        return;
+                    case "0":
+                        return;
+                    default:
+                        AnsiConsole.Markup("[bold yellow]Invalid choice, press any key to back[/]");
+                        Console.ReadKey();
+                        break;
+                }
             }
         }
 
@@ -187,10 +223,9 @@ public static class UserController
         var carts = db.Carts.Where(c => c.UserId == user.Id).ToList();
         if (carts.Count == 0)
         {
-            Console.WriteLine("Empty cart");
+            AnsiConsole.MarkupLine("[bold green]Cart is empty!!\n[/]");
             return;
         }
-        AnsiConsole.Markup("[bold green]Your cart \n[/]");
         var table = new Table();
         table.AddColumn("[bold]ID[/]");
         table.AddColumn("[bold]Product Name[/]");
@@ -210,8 +245,20 @@ public static class UserController
             );
             total += cart.Quantity * product.Price;
         }
-        AnsiConsole.Render(table);
-        AnsiConsole.Markup($"[bold green]Total:[/] [bold green]{total.ToString("c0")}\n[/]");
+        table.Expand();
+        var TotalAmount = new Table(){
+            Border = TableBorder.None,
+        };
+        TotalAmount.AddColumn($"[bold]Total Amount[/] [bold green]{total.ToString("c0")}[/]");
+        TotalAmount.Expand();
+        var mainTable = new Table()
+        {
+            Title = new TableTitle("[bold green]Your cart[/]")
+        };
+        mainTable.AddColumn(new TableColumn(table));
+        mainTable.AddRow(TotalAmount).LeftAligned();
+        mainTable.Expand();
+        AnsiConsole.Render(mainTable);
     }
 
     //Cart controller
@@ -219,25 +266,25 @@ public static class UserController
     {
         if(user == null)
         {
-            Console.WriteLine("You are not logged in.");
-            Console.WriteLine("1. Log in");
-            Console.WriteLine("2. Register a new account");
-            Console.WriteLine("0. Back");
-            Console.Write("Enter your choice: ");
-            int choice = int.Parse(Console.ReadLine());
-            switch (choice)
+            while (true)
             {
-                case 1:
-                    Login();
-                    break;
-                case 2:
-                    Register();
-                    break;
-                case 0:
-                    return;
-                default:
-                    Console.WriteLine("Invalid choice.");
-                    return;
+                Menu.RequireLoginMenu();
+                string choice = Console.ReadLine();
+                switch (choice)
+                {
+                    case "1":
+                        Login();
+                        return;
+                    case "2":
+                        Register();
+                        return;
+                    case "0":
+                        return;
+                    default:
+                        AnsiConsole.Markup("[bold yellow]Invalid choice, press any key to back[/]");
+                        Console.ReadKey();
+                        break;
+                }
             }
         }
         else
@@ -248,11 +295,12 @@ public static class UserController
             var carts = db.Carts.Where(c => c.UserId == user.Id).ToList();
             if (carts.Count == 0)
             {
-                AnsiConsole.Markup("[bold]Cart is empty, press ESC to go back[/]");
+                AnsiConsole.Markup("[bold yellow]-> Press [/][bold green]ESC[/][bold yellow] to go back[/]");
             }
             else
             {
                 AnsiConsole.Markup("[bold]Press [/][bold red]CTRL + R[/] [bold]to remove a product from the cart[/]\n");
+                AnsiConsole.Markup("[bold]Press[/] [bold green]CTRL + E[/][bold] to edit cart[/]\n");
                 AnsiConsole.Markup("[bold]Press[/][bold green] CTRL + B [/][bold]to checkout[/]\n");
                 AnsiConsole.Markup("[bold]Press[/] [bold yellow]ESC[/][bold] to exit[/]\n");
             }
@@ -270,6 +318,9 @@ public static class UserController
                             break;
                         case ConsoleKey.B:
                             Checkout();
+                            break;
+                        case ConsoleKey.E:
+                            UpdateCart();
                             break;
                         default:
                             break;
@@ -327,13 +378,26 @@ public static class UserController
 
     public static void RemoveFromCart()
     {
-        Console.WriteLine("Enter the cart ID to remove: ");
-        int cartId = int.Parse(Console.ReadLine());
+        int cartId;
+        while (true)
+        {
+            AnsiConsole.Markup("\n[bold green]Enter the cart ID to remove: [/]");
+            if (int.TryParse(Console.ReadLine(), out cartId))
+            {
+            break;
+            }
+            else
+            {
+            AnsiConsole.Markup("[bold red]Invalid input. Please enter a valid cart ID.[/]\n");
+            }
+        }
         using var db = new ApplicationDbContext();
         var cart = db.Carts.Find(cartId);
         if (cart == null)
         {
-            AnsiConsole.Markup("[bold red]No matching cart ID found[/]");
+            AnsiConsole.Markup("[bold red]No matching cart ID found, press any key to back\n[/]");
+            Console.ReadKey();
+            CartController();
             return;
         }
         db.Carts.Remove(cart);
@@ -344,39 +408,72 @@ public static class UserController
     }
     public static void UpdateCart()
     {
-        Console.WriteLine("Nhập ID sản phẩm cần cập nhật: ");
-        int cartId = int.Parse(Console.ReadLine());
-        Console.WriteLine("Nhập số lượng mới: ");
-        int quantity = int.Parse(Console.ReadLine());
+        ShowCart();
+        int cartId;
+        while (true)
+        {
+            AnsiConsole.Markup("[bold green]Enter the cart ID to update: [/]");
+            if (int.TryParse(Console.ReadLine(), out cartId))
+            {
+            break;
+            }
+            else
+            {
+            AnsiConsole.Markup("[bold red]Invalid input. Please enter a valid cart ID.[/]\n");
+            }
+        }
+
+        int quantity;
+        while (true)
+        {
+            AnsiConsole.Markup("[bold green]Enter the new quantity: [/]");
+            if (int.TryParse(Console.ReadLine(), out quantity))
+            {
+            break;
+            }
+            else
+            {
+            AnsiConsole.Markup("[bold red]Invalid input. Please enter a valid quantity.[/]\n");
+            }
+        }
         using var db = new ApplicationDbContext();
         var cart = db.Carts.Find(cartId);
         if (cart == null)
         {
-            Console.WriteLine("Không tìm thấy sản phẩm trong giỏ hàng");
+            AnsiConsole.Markup("[bold yellow]Cart ID not found, press any key to go back[/]");
+            Console.ReadKey();
+            CartController();
             return;
         }
         cart.Quantity = quantity;
         cart.UpdatedAt = DateTime.Now;
         db.SaveChanges();
+        AnsiConsole.Markup("[bold green]Cart updated successfully, press any key to continue[/]");
+        Console.ReadKey();
+        CartController();
     }
     public static void ShowUserOrderedList()
-    {
+    {   
+        Console.Clear();
         using var db = new ApplicationDbContext();
         var orders = db.Orders.Where(o => o.UserId == user.Id).ToList();
         if (orders.Count == 0)
         {
             Console.Clear();
-            Console.WriteLine("Không có đơn hàng nào");
-            Console.WriteLine("Nhấn phím bất kỳ để quay lại");
+            AnsiConsole.MarkupLine("[bold yellow]No orders found!!\n[/]");
+            AnsiConsole.MarkupLine("[bold green]Press any key to go back[/]");
             Console.ReadKey();
             return;
         }
-        var table = new Table();
-        table.AddColumn("ID");
-        table.AddColumn("Tổng tiền");
-        table.AddColumn("Trạng thái");
-        table.AddColumn("Ngày tạo");
-        table.AddColumn("Ngày cập nhật");
+        var table = new Table()
+        {
+            Title = new TableTitle("[bold green]Your Order List[/]"),
+        };
+        table.AddColumn("[bold]Oder ID[/]");
+        table.AddColumn("[bold]Total Amount[/]");
+        table.AddColumn("[bold]Status[/]");
+        table.AddColumn("[bold]Created At[/]");
+        table.AddColumn("[bold]Updated At[/]");
         foreach (var ordered in orders)
         {
             table.AddRow(
@@ -388,21 +485,21 @@ public static class UserController
             );
         }
         AnsiConsole.Render(table);
-        Console.WriteLine("Nhập ID đơn hàng để xem chi tiết");
+        AnsiConsole.Markup("[bold green]Enter the order ID to view details: [/]");
         var orderIdInput = Console.ReadLine();
         if (string.IsNullOrEmpty(orderIdInput))
         {
             Console.Clear();
-            Console.WriteLine("ID đơn hàng không được để trống");
-            Console.WriteLine("Nhấn phím bất kỳ để quay lại");
+            AnsiConsole.MarkupLine("[bold red]Order ID cannot be empty\n[/]");
+            AnsiConsole.MarkupLine("[bold green]Press any key to go back[/]");
             Console.ReadKey();
             return;
         }
         if (!int.TryParse(orderIdInput, out int orderId))
         {
             Console.Clear();
-            Console.WriteLine("ID đơn hàng không hợp lệ");
-            Console.WriteLine("Nhấn phím bất kỳ để quay lại");
+            AnsiConsole.MarkupLine("[bold red]Invalid order ID\n[/]");
+            AnsiConsole.MarkupLine("[bold green]Press any key to go back[/]");
             Console.ReadKey();
             return;
         }
@@ -410,24 +507,24 @@ public static class UserController
         if (order == null)
         {
             Console.Clear();
-            Console.WriteLine("Không tìm thấy đơn hàng");
-            Console.WriteLine("Nhấn phím bất kỳ để quay lại");
+            AnsiConsole.MarkupLine("[bold yellow]Order not found\n[/]");
+            AnsiConsole.MarkupLine("[bold green]Press any key to go back[/]");
             Console.ReadKey();
             return;
         }
         var orderDetail = db.OrderItems.Where(od => od.OrderId == orderId).ToList();
         if (orderDetail.Count == 0)
         {   Console.Clear();
-            Console.WriteLine("Đơn hàng trống");
-            Console.WriteLine("Nhấn phím bất kỳ để quay lại");
+            AnsiConsole.MarkupLine("[bold]Empty order!!\n[/]");
+            AnsiConsole.MarkupLine("[bold green]Press any key to go back[/]");
             Console.ReadKey();
             return;
         }
         var orderDetailTable = new Table();
-        orderDetailTable.AddColumn("Tên sản phẩm");
-        orderDetailTable.AddColumn("Số lượng");
-        orderDetailTable.AddColumn("Giá");
-        orderDetailTable.AddColumn("Thành tiền");
+        orderDetailTable.AddColumn("[bold]Product Name[/]");
+        orderDetailTable.AddColumn("[bold]Quantity[/]");
+        orderDetailTable.AddColumn("[bold]Price[/]");
+        orderDetailTable.AddColumn("[bold]Total Amount[/]");
         decimal total = 0;
         foreach (var od in orderDetail)
         {
@@ -440,39 +537,94 @@ public static class UserController
             );
             total += od.Quantity * product.Price;
         }
-        AnsiConsole.Render(orderDetailTable);
-        Console.WriteLine($"Tổng tiền: {total.ToString("c0")}");
-        Console.WriteLine("Nhấn phím bất kỳ để quay lại");
+        orderDetailTable.Expand();
+        // Total amount
+        var totalAmount = new Table()
+        {
+            Border = TableBorder.None,
+        };
+        totalAmount.AddColumn($"[bold]Total Amount[/] [bold green]{total.ToString("c0")}[/]");
+        // Main table to display order detail
+        var mainTable = new Table()
+        {
+            Title = new TableTitle($"[bold green]OrderID {orderId} Detail[/]")
+        };
+        mainTable.AddColumn(new TableColumn(orderDetailTable));
+        mainTable.AddRow(totalAmount).LeftAligned();
+        mainTable.Expand();
+        AnsiConsole.Render(mainTable);
+
+        AnsiConsole.MarkupLine("[bold green]Press any key to go back[/]");
         Console.ReadKey();
     }
-    public static void EditProfile()
+    public static void EditProfileController()
+    {
+        ShowProfile();
+        AnsiConsole.MarkupLine("[bold green]Do you want to edit your profile? ([/][bold yellow]Y[/]/[bold red]N[/])");
+        string confirmation = Console.ReadLine();
+        if (confirmation.ToUpper() == "N")
+        {
+            return;
+        }
+        else if (confirmation.ToUpper() == "Y")
+        {
+            EditProfile();
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("[bold red]Invalid choice, press any key to go back[/]");
+            Console.ReadKey();
+        }
+    }
+
+    private static void ShowProfile()
     {
         Console.Clear();
-        Table userInfo = new Table();
-        userInfo.AddColumn("ID");
-        userInfo.AddColumn("Tên");
-        userInfo.AddColumn("Email");
-        userInfo.AddColumn("Địa chỉ");
-        userInfo.AddRow(user.Id.ToString(), user.FullName, user.Email, user.Address);
+        var panel = new Panel(new FigletText("PET SHOP").Centered().Color(Color.Aqua))
+        {
+            Border = BoxBorder.None,
+            Padding = new Padding(1, 1, 1, 1),
+            Header = new PanelHeader("[bold yellow]WELLCOME TO PET SHOP[/]").Centered(),
+        };
+        Table userInfo = new Table()
+        {
+            Title = new TableTitle("[bold green]User Information[/]"),
+        };
+        userInfo.AddColumn("[bold]User ID[/]");
+        userInfo.AddColumn("[bold]User Name[/]");
+        userInfo.AddColumn("[bold]Full Name[/]");
+        userInfo.AddColumn("[bold]Email[/]");
+        userInfo.AddColumn("[bold]Address[/]");
+        userInfo.AddRow(user.Id.ToString(), user.Username, user.FullName, user.Email, user.Address);
         AnsiConsole.Render(userInfo);
-        Console.WriteLine("Nhập tên mới: ");
+    }
+
+    public static void EditProfile()
+    {
+        AnsiConsole.Markup("[bold green]Enter new name: [/]");
         string newName = Console.ReadLine();
         while (string.IsNullOrEmpty(newName))
         {
             Console.Clear();
-            Console.WriteLine("Tên không được để trống. Vui lòng nhập lại.");
-            Console.WriteLine("Nhập tên mới: ");
+            Console.WriteLine("Name cannot be empty. Please enter a new name.");
+            AnsiConsole.Markup("[bold green]Enter new name: [/]");
             newName = Console.ReadLine();
         }
         user.FullName = newName;
 
-        Console.WriteLine("Nhập email mới: ");
+        AnsiConsole.Markup("[bold green]Enter the new email: [/]");
         string newEmail = Console.ReadLine();
-        while (string.IsNullOrEmpty(newEmail))
+        while (string.IsNullOrEmpty(newEmail) || !IsValidEmail(newEmail))
         {
-            Console.Clear();
-            Console.WriteLine("Email không được để trống. Vui lòng nhập lại.");
-            Console.WriteLine("Nhập tên mới: ");
+            if (string.IsNullOrEmpty(newEmail))
+            {
+                AnsiConsole.MarkupLine("[bold yellow]Email cannot be empty. Please enter again.\n[/]");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[bold yellow]Invalid email format. Please enter a valid email.\n[/]");
+            }
+            AnsiConsole.Markup("[bold green]Enter new email: [/]");
             newEmail = Console.ReadLine();
         }
         using var db = new ApplicationDbContext();
@@ -480,34 +632,52 @@ public static class UserController
         if (existingUser != null)
         {
             Console.Clear();
-            Console.WriteLine("Email đã tồn tại. Vui lòng nhập email khác.");
+            Console.Clear();
+            AnsiConsole.MarkupLine("[bold red]Email already exists. Please enter a different email.\n[/]");
             Console.ReadKey();
             return;
         }
         user.Email = newEmail;
-        Console.WriteLine("Nhập địa chỉ mới: ");
+        AnsiConsole.Markup("[bold green]Enter the new address: [/]");
         string newAddress = Console.ReadLine();
         while (string.IsNullOrEmpty(newAddress))
         {
             Console.Clear();
-            Console.WriteLine("Địa chỉ không được để trống. Vui lòng nhập lại.");
-            Console.WriteLine("Nhập địa chỉ mới: ");
+            Console.Clear();
+            AnsiConsole.MarkupLine("[bold yellow]Address cannot be empty. Please enter again.\n[/]");
+            AnsiConsole.Markup("[bold green]Enter the new address: [/]");
             newAddress = Console.ReadLine();
         }
         user.Address = newAddress;
-        db.Users.Update(user);
-        db.SaveChanges();
-        Console.WriteLine("Cập nhật thông tin thành công");
-        Console.WriteLine("Nhấn phím bất kỳ để quay lại");
-        Console.ReadKey();
+        AnsiConsole.MarkupLine("[bold yellow]Are you sure you want to update your profile? ([/][bold green]Y[/]/[bold red]N[/])");
+        string confirmation = Console.ReadLine();
+        if (confirmation.ToUpper() == "Y")
+        {
+            db.Users.Update(user);
+            db.SaveChanges();
+            AnsiConsole.MarkupLine("[bold green]Profile updated successfully, press any key to continue[/]");
+            Console.ReadKey();
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("[bold yellow]Profile update cancelled[/]");
+            Console.ReadKey();
+        }
     }
-
+    //User logout function
     public static void Logout()
     {
         user = null;
         Console.Clear();
-        AnsiConsole.Markup("[bold green]Logout successful[/]");
-        AnsiConsole.Markup("[bold green]Press any key to continue[/]");
+        AnsiConsole.Markup("[bold green]Log out successful, press any key to continue[/]");
         Console.ReadKey();
+    }
+
+    // Validate email format
+    private static bool IsValidEmail(string email)
+    {
+        // Use regular expression to validate email format
+        string pattern = @"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$";
+        return Regex.IsMatch(email, pattern);
     }
 }
