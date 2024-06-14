@@ -27,7 +27,7 @@ public static class StoreManagerController
                     OderController.ManagementOrder();
                     break;
                 case "4":
-                    //DashboardController.ShowDashboard();
+                    DashboardController.DashboardManagement();
                     break;
                 case "0":
                     UserController.Logout();

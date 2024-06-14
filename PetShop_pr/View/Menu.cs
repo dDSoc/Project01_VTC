@@ -520,4 +520,50 @@ class Menu
         mainTable.Expand();
         AnsiConsole.Write(mainTable);
     }
+
+    // Display the Dashboard management menu
+    public static void DashboardManagementMenu()
+    {
+        Console.Clear();
+        // Display the large title
+        var panel = new Panel(new FigletText("PET SHOP").Centered().Color(Color.Aqua))
+        {
+            Border = BoxBorder.None,
+            Padding = new Padding(1, 1, 1, 1),
+        };
+        panel.Expand();
+        var table = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table.AddColumn(new TableColumn("[bold yellow]Dashboard[/]").Centered()).BorderColor(Color.Yellow);
+        table.Expand();
+        var table1 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table1.AddColumn(new TableColumn("[bold yellow]1.[/][bold] Show revenue Dashboard[/]"));
+        table1.Expand();
+        var table2 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table2.AddColumn(new TableColumn("[bold yellow]2.[/][bold] Show best seller[/]"));
+        table2.Expand();
+
+        var table3 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table3.AddColumn(new TableColumn("[bold yellow]0.[/][bold] Back[/]"));
+        table3.Expand();
+        var mainTable = new Table();
+        mainTable.AddColumn(new TableColumn(panel));
+        mainTable.AddRow(table);
+        mainTable.AddRow(table1);
+        mainTable.AddRow(table2);
+        mainTable.AddRow(table3);
+        mainTable.Expand();
+        AnsiConsole.Write(mainTable);
+    }
 }

@@ -21,12 +21,12 @@ public static class OderController
                     SearhOrder();
                     break;
                 case "2":
-                    ShowOrderList();
+                    ShowAllOrderList();
                     AnsiConsole.MarkupLine("[bold green]Press any key to continue...[/]");
                     Console.ReadKey();
                     break;
                 case "3":
-                    // UpdateOrderStatus();
+                    UpdateOrderStatus();
                     break;
                 case "0":
                     StoreManagerController.StoreManagementMenu();
@@ -35,26 +35,99 @@ public static class OderController
         }
     }
 
-    private static void ShowOrderList()
+    private static void UpdateOrderStatus()
+    {
+        using var db = new ApplicationDbContext();
+        AnsiConsole.MarkupLine("[bold green]Enter order ID:[/]");
+        string input = Console.ReadLine();
+        int orderId;
+        while (true)
+        {
+            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out orderId))
+            {
+                AnsiConsole.MarkupLine("[bold red]Invalid order ID![/]");
+                AnsiConsole.MarkupLine("[bold green]Enter order ID:[/]");
+                input = Console.ReadLine();
+                continue;
+            }
+            var order = db.Orders.FirstOrDefault(o => o.Id == orderId);
+            if (order == null)
+            {
+                AnsiConsole.MarkupLine("[bold red]Order not found![/]");
+                AnsiConsole.MarkupLine("[bold green]Press any key to continue...[/]");
+                Console.ReadKey();
+                return;
+            }
+            else
+            {
+                UpdateOrderStatusByID(orderId);
+                break;
+            }
+        }
+    }
+
+    private static void ShowAllOrderList()
     {
         using var db = new ApplicationDbContext();
         var orders = db.Orders.Include(o => o.OrderItems).ToList();
-        foreach (var order in orders)
+        if (orders.Count == 0)
         {
-            AnsiConsole.MarkupLine("[bold green]Order ID:[/]");
-            AnsiConsole.MarkupLine(order.Id.ToString());
-            AnsiConsole.MarkupLine("[bold green]Order date:[/]");
-            AnsiConsole.MarkupLine(order.CreatedAt.ToString());
-            AnsiConsole.MarkupLine("[bold green]Order status:[/]");
-            AnsiConsole.MarkupLine(order.Status);
-            AnsiConsole.MarkupLine("[bold green]Order details:[/]");
-            foreach (var detail in order.OrderItems)
+            AnsiConsole.MarkupLine("[bold red]No order found![/]");
+            return;
+        }
+        var table = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table.AddColumn("[bold green]Order ID[/]");
+        table.AddColumn("[bold green]Order date[/]");
+        table.AddColumn("[bold green]Order status[/]");
+        table.AddColumn("[bold green]Total amount[/]");
+        foreach (var order in orders)
+        {   
+            var orderDetails = db.OrderItems.Include(o => o.Product).Where(o => o.OrderId == order.Id).ToList();
+            decimal totalAmount = 0;
+            foreach (var detail in orderDetails)
             {
-                AnsiConsole.MarkupLine(detail.Product.Name + " x" + detail.Quantity + " = " + detail.Product.Price * detail.Quantity);
+                totalAmount += detail.Product.Price * detail.Quantity;
             }
-            AnsiConsole.MarkupLine("[bold green]Total amount:[/]");
-            AnsiConsole.MarkupLine(order.TotalAmount.ToString());
-            AnsiConsole.MarkupLine("");
+            table.AddRow(order.Id.ToString(), order.CreatedAt.ToString(), order.Status, totalAmount.ToString());
+        }
+        table.Expand();
+        AnsiConsole.Render(table);
+        AnsiConsole.MarkupLine("[bold green]Do you want to update order status? (Y/N)[/]");
+        string confirm = Console.ReadLine();
+        if (confirm.ToUpper() == "Y")
+        {
+            AnsiConsole.MarkupLine("[bold green]Enter order ID to update status:[/]");
+            int orderId;
+            while(true)
+            {
+                string input = Console.ReadLine();
+                if (string.IsNullOrEmpty(input) || !int.TryParse(input, out orderId))
+                {
+                    AnsiConsole.MarkupLine("[bold red]Invalid order ID![/]");
+                    AnsiConsole.MarkupLine("[bold green]Enter order ID:[/]");
+                    continue;
+                }
+                var order = db.Orders.FirstOrDefault(o => o.Id == orderId);
+                if (order == null)
+                {
+                    AnsiConsole.MarkupLine("[bold red]Order not found![/]");
+                    AnsiConsole.MarkupLine("[bold green]Press any key to continue...[/]");
+                    Console.ReadKey();
+                    return;
+                }
+                else
+                {
+                    UpdateOrderStatusByID(orderId);
+                    break;
+                }
+            }
+        }
+        else if (confirm.ToUpper() == "N")
+        {
+            return;
         }
     }
 
@@ -84,7 +157,6 @@ public static class OderController
             break;
         }
         ShowOrderDetail(orderId);
-
     }
 
     public static void ShowOrderDetail(int OrderID)
@@ -135,7 +207,39 @@ public static class OderController
         mainTable.AddRow(tableTotalAmount);
         mainTable.Expand();
         AnsiConsole.Render(mainTable);
-        AnsiConsole.MarkupLine("[bold green]Press any key to continue...[/]");
-        Console.ReadKey();
+        AnsiConsole.MarkupLine("[bold green]Do you want do update order status? (Y/N)[/]");
+        string confirm = Console.ReadLine();
+        if (confirm.ToUpper() == "Y")
+        {
+            UpdateOrderStatusByID(OrderID);
+            AnsiConsole.MarkupLine("[bold green] Updated successfully! Press any key to continue...[/]");
+        }
+        else if (confirm.ToUpper() == "N")
+        {
+            AnsiConsole.MarkupLine("[bold green]Press any key to continue...[/]");
+            Console.ReadKey();
+        }
+    }
+
+    private static void UpdateOrderStatusByID(int OrderID)
+    {
+        using var db = new ApplicationDbContext();
+        var order = db.Orders.FirstOrDefault(o => o.Id == OrderID);
+        if (order == null)
+        {
+            AnsiConsole.MarkupLine("[bold red]Order not found![/]");
+            return;
+        }
+        AnsiConsole.MarkupLine("[bold green]Enter new order status:[/]");
+        string newStatus = Console.ReadLine();
+        order.Status = newStatus;
+        AnsiConsole.MarkupLine("[bold green]Do you want to update the order status? (y/n)[/]");
+        string answer = Console.ReadLine();
+        if (answer.ToLower() == "y")
+        {
+            db.SaveChanges();
+            AnsiConsole.MarkupLine("[bold green]Order status updated successfully! Press any key to continue...[/]");
+            Console.ReadKey();
+        }
     }
 }
