@@ -53,6 +53,7 @@ public static class UserController
                                 break;
                             case "store_manager":
                                 // Thực hiện các hành động dành cho store manager
+                                StoreManagerController.StoreManagementMenu();
                                 break;
                             case "shop_owner":
                                 // Thực hiện các hành động dành cho shop owner
@@ -331,7 +332,7 @@ public static class UserController
                     return;
                 }
             } while (keyInfo.Key != ConsoleKey.Escape);
-            Console.ReadKey();
+            // Console.ReadKey();
         }
     }
     private static void Checkout()
@@ -667,10 +668,24 @@ public static class UserController
     //User logout function
     public static void Logout()
     {
-        user = null;
-        Console.Clear();
-        AnsiConsole.Markup("[bold green]Log out successful, press any key to continue[/]");
-        Console.ReadKey();
+        AnsiConsole.MarkupLine("[bold yellow]Are you sure you want to log out? ([/][bold green]Y[/]/[bold red]N[/])");
+        string confirmation = Console.ReadLine();
+        if (confirmation.ToUpper() == "Y")
+        {
+            user = null;
+            AnsiConsole.MarkupLine("[bold green]Log out successful, press any key to continue[/]");
+            Console.ReadKey();
+        }
+        else if (confirmation.ToUpper() == "N")
+        {
+            AnsiConsole.MarkupLine("[bold yellow]Log out cancelled, press any key to continue[/]");
+            Console.ReadKey();
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("[bold red]Invalid choice, press any key to continue[/]");
+            Console.ReadKey();
+        }
     }
 
     // Validate email format

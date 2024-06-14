@@ -10,15 +10,15 @@ public static class MenuController
     public static List<Product> products = new List<Product>();
 
     //Main menu controller
-    public static void MainMenuController()
-    {
+    // public static void MainMenuController()
+    // {
     
-        while (true)
-        {
-            Menu.DefaultMenu();
-            DefaultMenuController();
-        }
-    }
+    //     while (true)
+    //     {
+    //         Menu.DefaultMenu();
+    //         DefaultMenuController();
+    //     }
+    // } 
 
     //Customer management menu controller
     public static void CustomerManagementMenu()
@@ -48,7 +48,15 @@ public static class MenuController
                     break;
                 case "0":
                     UserController.Logout();
-                    MainMenuController();
+                    if(UserController.user == null)
+                    {
+                        DefaultMenuController();
+                    }
+                    else
+                    {
+                        CustomerManagementMenu();
+                    }
+                    // MainMenuController();
                     break;
                 default:
                     AnsiConsole.MarkupLine("[bold yellow]Function does not exist, press any key to continue[/]");
@@ -85,7 +93,7 @@ public static class MenuController
                     // ProductManager.SearchProduct();
                     break;
                 case "0":
-                    MainMenuController();
+                    // MainMenuController();
                     break;
                 default:
                     Console.WriteLine("Chức năng không tồn tại");
@@ -151,14 +159,17 @@ public static class MenuController
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("Found " + products.Count + " products");
-                var table = new Table();
+                AnsiConsole.MarkupLine($"[bold green]Found {products.Count} products[/]");
+                var table = new Table()
+                {
+                    Title = new TableTitle($"[bold yellow]Page {currentPage}/{totalPages}[/]"),
+                };
                 table.AddColumn("[bold]ID[/]");
-                table.AddColumn("[bold]Tên sản phẩm[/]");
-                table.AddColumn("[bold]Mô tả[/]");
-                table.AddColumn("[bold]Giá[/]");
-                table.AddColumn("[bold]Số lượng[/]");
-                Console.WriteLine($"Page {currentPage}/{totalPages}");
+                table.AddColumn("[bold]Product Name[/]");
+                table.AddColumn("[bold]Description[/]");
+                table.AddColumn("[bold]Price[/]");
+                table.AddColumn("[bold]Quantity[/]");
+                Console.WriteLine();
                 Console.WriteLine();
 
                 for (int i = (currentPage - 1) * pageSize; i < currentPage * pageSize && i < products.Count; i++)
@@ -172,8 +183,8 @@ public static class MenuController
                         product.Stock.ToString()
                     );
                 }
-
-                AnsiConsole.Render(table);
+                table.Expand();
+                AnsiConsole.Write(table);
 
                 Console.WriteLine();
                 AnsiConsole.MarkupLine("[bold]Press '[/][bold red]CTRL + P[/][bold]' for previous page, '[/][bold red]CTRL + N[/][bold]' for next page[/]");
