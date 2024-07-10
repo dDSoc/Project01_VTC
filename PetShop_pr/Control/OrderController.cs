@@ -12,7 +12,7 @@ public static class OderController
         while (true)
         {
             Menu.OrderManagementMenu();
-            AnsiConsole.MarkupLine("[bold green]Enter your choice:[/]");
+            AnsiConsole.Markup("[bold green]Enter your choice:[/]");
             string choice = Console.ReadLine();
 
             switch (choice)
@@ -22,7 +22,7 @@ public static class OderController
                     break;
                 case "2":
                     ShowAllOrderList();
-                    AnsiConsole.MarkupLine("[bold green]Press any key to continue...[/]");
+                    AnsiConsole.MarkupLine("[bold green]Press any key to continue.[/]");
                     Console.ReadKey();
                     break;
                 case "3":
@@ -38,7 +38,7 @@ public static class OderController
     private static void UpdateOrderStatus()
     {
         using var db = new ApplicationDbContext();
-        AnsiConsole.MarkupLine("[bold green]Enter order ID:[/]");
+        AnsiConsole.Markup("[bold green]Enter order ID:[/]");
         string input = Console.ReadLine();
         int orderId;
         while (true)
@@ -46,15 +46,14 @@ public static class OderController
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out orderId))
             {
                 AnsiConsole.MarkupLine("[bold red]Invalid order ID![/]");
-                AnsiConsole.MarkupLine("[bold green]Enter order ID:[/]");
+                AnsiConsole.Markup("[bold green]Enter order ID:[/]");
                 input = Console.ReadLine();
                 continue;
             }
             var order = db.Orders.FirstOrDefault(o => o.Id == orderId);
             if (order == null)
             {
-                AnsiConsole.MarkupLine("[bold red]Order not found![/]");
-                AnsiConsole.MarkupLine("[bold green]Press any key to continue...[/]");
+                AnsiConsole.MarkupLine("[bold red]Order not found, Press any key to continue.[/]");
                 Console.ReadKey();
                 return;
             }
@@ -134,7 +133,7 @@ public static class OderController
     private static void SearhOrder()
     {
         using var db = new ApplicationDbContext();
-        AnsiConsole.MarkupLine("[bold green]Enter order ID:[/]");
+        AnsiConsole.Markup("[bold green]Enter order ID:[/]");
         string input = Console.ReadLine();
         int orderId;
         while (true)
@@ -142,15 +141,14 @@ public static class OderController
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out orderId))
             {
                 AnsiConsole.MarkupLine("[bold red]Invalid order ID![/]");
-                AnsiConsole.MarkupLine("[bold green]Enter order ID:[/]");
+                AnsiConsole.Markup("[bold green]Enter order ID:[/]");
                 Console.ReadKey();
                 return;
             }
             var order = db.Orders.Include(o => o.OrderItems).FirstOrDefault(o => o.Id == orderId);
             if (order == null)
             {
-                AnsiConsole.MarkupLine("[bold red]Order not found![/]");
-                AnsiConsole.MarkupLine("[bold green]Press any key to continue...[/]");
+                AnsiConsole.MarkupLine("[bold red]Order not found, press any key to continue.[/]");
                 Console.ReadKey();
                 return;
             }

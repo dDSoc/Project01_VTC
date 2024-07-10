@@ -12,7 +12,7 @@ public static class StoreManagerController
         while (true)
         {
             Menu.StoreManagerMenu();
-            AnsiConsole.MarkupLine("[bold green]Enter your choice:[/]");
+            AnsiConsole.Markup("[bold green]Enter your choice:[/]");
             string choice = Console.ReadLine();
 
             switch (choice)

@@ -27,7 +27,7 @@ public static class DashboardController
         while (true)
         {
             Menu.DashboardManagementMenu();
-            AnsiConsole.MarkupLine("[bold green]Enter your choice:[/]");
+            AnsiConsole.Markup("[bold green]Enter your choice: [/]");
             string choice = Console.ReadLine();
 
             switch (choice)
@@ -40,6 +40,10 @@ public static class DashboardController
                     break;
                 case "0":
                     StoreManagerController.StoreManagementMenu();
+                    break;
+                default:
+                    AnsiConsole.MarkupLine("[bold red]Invalid choice. Press any key to continue.[/]");
+                    Console.ReadKey();
                     break;
             }
         }
@@ -86,7 +90,7 @@ public static class DashboardController
         string year = null;
         while (string.IsNullOrEmpty(year))
         {
-            AnsiConsole.MarkupLine("[bold green]Enter year:[/]");
+            AnsiConsole.Markup("[bold green]Enter year:[/]");
             string input = Console.ReadLine();
             if (int.TryParse(input, out int result))
             {

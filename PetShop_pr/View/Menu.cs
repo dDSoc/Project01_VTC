@@ -93,17 +93,11 @@ class Menu
         };
         table3.AddColumn(new TableColumn("[bold yellow]3.[/][bold] View cart[/]"));
         table3.Expand();
-        var table4 = new Table()
-        {
-            Border = TableBorder.Rounded,
-        };
-        table4.AddColumn(new TableColumn("[bold yellow]4.[/][bold] Your vouchers[/]"));
-        table4.Expand();
         var table5 = new Table()
         {
             Border = TableBorder.Rounded,
         };
-        table5.AddColumn(new TableColumn("[bold yellow]5.[/][bold] Edit your info[/]"));
+        table5.AddColumn(new TableColumn("[bold yellow]4.[/][bold] Edit your info[/]"));
         table5.Expand();
         var table6 = new Table()
         {
@@ -116,7 +110,6 @@ class Menu
         mainTable.AddRow(table1);
         mainTable.AddRow(table2);
         mainTable.AddRow(table3);
-        mainTable.AddRow(table4);
         mainTable.AddRow(table5);
         mainTable.AddRow(table6);
 
@@ -397,6 +390,12 @@ class Menu
         };
         table4.AddColumn(new TableColumn("[bold yellow]4.[/][bold] Edit product stock[/]"));
         table4.Expand();
+        var table6 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table6.AddColumn(new TableColumn("[bold yellow]5.[/][bold] Edit product category[/]"));
+        table6.Expand();
         var table5 = new Table()
         {
             Border = TableBorder.Rounded,
@@ -411,6 +410,7 @@ class Menu
         mainTable.AddRow(table2);
         mainTable.AddRow(table3);
         mainTable.AddRow(table4);
+        mainTable.AddRow(table6);
         mainTable.AddRow(table5);
         mainTable.Expand();
         AnsiConsole.Write(mainTable);

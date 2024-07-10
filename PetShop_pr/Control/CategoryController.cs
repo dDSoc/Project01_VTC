@@ -12,7 +12,7 @@ public static class CategoryController
         while (true)
         {
             Menu.CategoryManagementMenu();
-            AnsiConsole.MarkupLine("[bold green]Enter your choice:[/]");
+            AnsiConsole.Markup("[bold green]Enter your choice:[/]");
             string choice = Console.ReadLine();
 
             switch (choice)
@@ -39,20 +39,22 @@ public static class CategoryController
     {
         using var db = new ApplicationDbContext();
         var category = new Category();
-        AnsiConsole.MarkupLine("[bold green]Enter category name:[/]");
+        AnsiConsole.Markup("[bold green]Enter category name: [/]");
         string categoryName = Console.ReadLine();
-        if (string.IsNullOrEmpty(categoryName))
+        while (string.IsNullOrWhiteSpace(categoryName))
         {
-            AnsiConsole.MarkupLine("[bold red]Category name cannot be empty![/]");
-            return;
+            AnsiConsole.MarkupLine("[bold red]Category name cannot be empty or contain only whitespace![/]");
+            AnsiConsole.Markup("[bold green]Enter category name: [/]");
+            categoryName = Console.ReadLine();
         }
         category.Name = categoryName;
-        AnsiConsole.MarkupLine("[bold green]Enter category description:[/]");
+        AnsiConsole.Markup("[bold green]Enter category description: [/]");
         string categoryDescription = Console.ReadLine();
-        if (string.IsNullOrEmpty(categoryDescription))
+        while (string.IsNullOrWhiteSpace(categoryDescription))
         {
             AnsiConsole.MarkupLine("[bold red]Category description cannot be empty![/]");
-            return;
+            AnsiConsole.Markup("[bold green]Enter category description: [/]");
+            categoryDescription = Console.ReadLine();
         }
         category.Description = categoryDescription;
         db.Categories.Add(category);
@@ -72,6 +74,7 @@ public static class CategoryController
 
     public static void ShowCategory()
     {
+        Console.Clear();
         using var db = new ApplicationDbContext();
         var categories = db.Categories.ToList();
         var table = new Table();
@@ -93,28 +96,29 @@ public static class CategoryController
         int id;
         while (true)
         {
-            AnsiConsole.MarkupLine("[bold green]Enter category ID to update:[/]");
+            AnsiConsole.Markup("[bold green]Enter category ID to update:[/]");
             string input = Console.ReadLine();
             if (int.TryParse(input, out id))
             {
-            break;
+                break;
             }
             else
             {
-            AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid category ID.[/]");
+                AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid category ID.[/]");
             }
         }
         var category = db.Categories.Find(id);
         if (category == null)
         {
-            AnsiConsole.MarkupLine("[bold red]Category not found![/]");
+            AnsiConsole.MarkupLine("[bold red]Category not found, press any key to back[/]");
+            Console.ReadKey();
             return;
         }
-        AnsiConsole.MarkupLine("[bold green]Enter new category name:[/]");
+        AnsiConsole.Markup("[bold green]Enter new category name:[/]");
         category.Name = Console.ReadLine();
-        AnsiConsole.MarkupLine("[bold green]Enter new category description:[/]");
+        AnsiConsole.Markup("[bold green]Enter new category description:[/]");
         category.Description = Console.ReadLine();
-        AnsiConsole.MarkupLine("[bold yellow]Are you sure you want to update this category? (Y/N)[/]");
+        AnsiConsole.Markup("[bold yellow]Are you sure you want to update this category? (Y/N)[/]");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
