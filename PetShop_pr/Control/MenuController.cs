@@ -30,6 +30,9 @@ public static class MenuController
                 case "4":
                     UserController.EditProfileController();
                     break;
+                case "5":
+                    ShowAllProducts();
+                    break;
                 case "0":
                     UserController.Logout();
                     if(UserController.user == null)
@@ -191,6 +194,9 @@ public static class MenuController
                 case "3":
                     UserController.Register();
                     break;
+                case "4":
+                    ShowAllProducts();
+                    break;
                 case "0":
                     Environment.Exit(0);
                     break;
@@ -201,5 +207,12 @@ public static class MenuController
                     break;
             }
         }
+    }
+
+    public static void ShowAllProducts()
+    {
+        using var db = new ApplicationDbContext();
+        products = db.Products.ToList();
+        ShowProductListResult();
     }
 }   

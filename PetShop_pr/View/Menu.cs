@@ -51,14 +51,21 @@ class Menu
         {
             Border = TableBorder.Rounded,
         };
-        table4.AddColumn(new TableColumn("[bold yellow]0.[/][bold] Exit[/]"));
+        table4.AddColumn(new TableColumn("[bold yellow]4.[/][bold] Display all products[/]"));
         table4.Expand();
+        var table5 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table5.AddColumn(new TableColumn("[bold yellow]0.[/][bold] Exit[/]"));
+        table5.Expand();
         var mainTable = new Table();
         mainTable.AddColumn(new TableColumn(panel));
         mainTable.AddRow(table1);
         mainTable.AddRow(table2);
         mainTable.AddRow(table3);
         mainTable.AddRow(table4);
+        mainTable.AddRow(table5);
 
         AnsiConsole.Write(mainTable);
     }
@@ -93,6 +100,12 @@ class Menu
         };
         table3.AddColumn(new TableColumn("[bold yellow]3.[/][bold] View cart[/]"));
         table3.Expand();
+        var table4 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table4.AddColumn(new TableColumn("[bold yellow]0.[/][bold] Show all products[/]"));
+        table4.Expand();
         var table5 = new Table()
         {
             Border = TableBorder.Rounded,
@@ -110,6 +123,7 @@ class Menu
         mainTable.AddRow(table1);
         mainTable.AddRow(table2);
         mainTable.AddRow(table3);
+        mainTable.AddRow(table4);
         mainTable.AddRow(table5);
         mainTable.AddRow(table6);
 
@@ -336,14 +350,21 @@ class Menu
         {
             Border = TableBorder.Rounded,
         };
-        table3.AddColumn(new TableColumn("[bold yellow]0.[/][bold] Back[/]"));
+        table3.AddColumn(new TableColumn("[bold yellow]3.[/][bold] Show product list[/]"));
         table3.Expand();
+        var table4 = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table4.AddColumn(new TableColumn("[bold yellow]0.[/][bold] Back[/]"));
+        table4.Expand();
         var mainTable = new Table();
         mainTable.AddColumn(new TableColumn(panel));
         mainTable.AddRow(table);
         mainTable.AddRow(table1);
         mainTable.AddRow(table2);
         mainTable.AddRow(table3);
+        mainTable.AddRow(table4);
         mainTable.Expand();
         AnsiConsole.Write(mainTable);
     }

@@ -23,6 +23,9 @@ public static class ProductController
                 case "2":
                     EditProductManager();
                     break;
+                case "3":
+                    ShowProduct();
+                    break;
                 case "0":
                     StoreManagerController.StoreManagementMenu();
                     break;
@@ -31,6 +34,46 @@ public static class ProductController
                     Console.ReadKey();
                     break;
             }
+        }
+    }
+
+    private static void ShowProduct()
+    {
+        Console.Clear();
+        using var db = new ApplicationDbContext();
+        var products = db.Products.Include(p => p.Category).ToList();
+        var table = new Table();
+        table.AddColumn("ID");
+        table.AddColumn("Name");
+        table.AddColumn("Price");
+        table.AddColumn("Description");
+        table.AddColumn("Stock");
+        table.AddColumn("Category");
+        foreach (var product in products)
+        {
+            table.AddRow(product.Id.ToString(), product.Name, product.Price.ToString(), product.Description, product.Stock.ToString(), product.Category.Name);
+        }
+        AnsiConsole.Render(table);
+        AnsiConsole.MarkupLine("[bold yellow]1. Edit product[/]");
+        AnsiConsole.MarkupLine("[bold yellow]2. Add product[/]");
+        AnsiConsole.MarkupLine("[bold yellow]0. Back[/]");
+        // Implement pagination
+        AnsiConsole.Markup("[bold green]Enter your choice:[/]");
+        string choice = Console.ReadLine();
+        switch (choice)
+        {
+            case "1":
+                EditProductManager();
+                break;
+            case "2":
+                AddProduct();
+                break;
+            case "0":
+                return;
+            default:
+                AnsiConsole.MarkupLine("[bold red]Invalid choice. Press any key to continue.[/]");
+                Console.ReadKey();
+                break;
         }
     }
 
