@@ -88,17 +88,17 @@ public static class DashboardController
     {
         Console.Clear();
         string year = null;
-        while (string.IsNullOrEmpty(year))
+        while (string.IsNullOrWhiteSpace(year))
         {
-            AnsiConsole.Markup("[bold green]Enter year:[/]");
+            AnsiConsole.Markup("[bold green]Enter year (0-10000): [/]");
             string input = Console.ReadLine();
-            if (int.TryParse(input, out int result))
+            if (int.TryParse(input, out int result) && result >= 0 && result <= 10000)
             {
-                year = input;
+            year = input;
             }
             else
             {
-                AnsiConsole.MarkupLine("[bold red]Invalid input. Please enter a valid year.[/]");
+            AnsiConsole.MarkupLine("[bold red]Invalid input. Please enter a valid year.[/]");
             }
         }
 

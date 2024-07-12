@@ -95,12 +95,12 @@ public static class ProductController
         product.Name = name;
 
         // Get product price
-        AnsiConsole.Markup("[bold green]Enter product price: [/]");
+        AnsiConsole.Markup("[bold green]Enter product price (Max 1.000.000): [/]");
         decimal price;
-        while (!decimal.TryParse(Console.ReadLine(), out price) || price <= 0)
+        while (!decimal.TryParse(Console.ReadLine(), out price) || price <= 0 || price > 1000000)
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid price.[/]");
-            AnsiConsole.Markup("[bold green]Enter product price: [/]");
+            AnsiConsole.Markup("[bold green]Enter product price (Max 1.000.000): [/]");
         }
         product.Price = price;
 
@@ -110,18 +110,18 @@ public static class ProductController
         while (string.IsNullOrWhiteSpace(description))
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product description.[/]");
-            AnsiConsole.Markup("[bold green]Enter product description:[/]");
+            AnsiConsole.Markup("[bold green]Enter product description: [/]");
             description = Console.ReadLine();
         }
         product.Description = description;
 
         // Get product stock
-        AnsiConsole.Markup("[bold green]Enter product quantity:[/]");
+        AnsiConsole.Markup("[bold green]Enter product quantity (Max 1.000.000): [/]");
         int stock;
-        while (!int.TryParse(Console.ReadLine(), out stock) || stock <= 0)
+        while (!int.TryParse(Console.ReadLine(), out stock) || stock <= 0 || stock > 1000000)
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid quantity.[/]");
-            AnsiConsole.Markup("[bold green]Enter product quantity:[/]");
+            AnsiConsole.Markup("[bold green]Enter product quantity(Max 1.000.000): [/]");
         }
         product.Stock = stock;
 

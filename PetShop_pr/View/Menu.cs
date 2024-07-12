@@ -104,13 +104,13 @@ class Menu
         {
             Border = TableBorder.Rounded,
         };
-        table4.AddColumn(new TableColumn("[bold yellow]0.[/][bold] Show all products[/]"));
+        table4.AddColumn(new TableColumn("[bold yellow]4.[/][bold] Show all products[/]"));
         table4.Expand();
         var table5 = new Table()
         {
             Border = TableBorder.Rounded,
         };
-        table5.AddColumn(new TableColumn("[bold yellow]4.[/][bold] Edit your info[/]"));
+        table5.AddColumn(new TableColumn("[bold yellow]5.[/][bold] Edit your info[/]"));
         table5.Expand();
         var table6 = new Table()
         {

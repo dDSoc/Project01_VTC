@@ -28,10 +28,10 @@ public static class MenuController
                     UserController.CartController();
                     break;
                 case "4":
-                    UserController.EditProfileController();
+                    ShowAllProducts();
                     break;
                 case "5":
-                    ShowAllProducts();
+                    UserController.EditProfileController();
                     break;
                 case "0":
                     UserController.Logout();

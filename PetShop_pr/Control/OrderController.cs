@@ -228,8 +228,36 @@ public static class OderController
             AnsiConsole.MarkupLine("[bold red]Order not found![/]");
             return;
         }
-        AnsiConsole.MarkupLine("[bold green]Enter new order status:[/]");
-        string newStatus = Console.ReadLine();
+
+        //Display order details
+        var orderDetails = db.OrderItems.Include(o => o.Product).Where(o => o.OrderId == OrderID).ToList();
+        var table = new Table()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table.AddColumn("[bold green]Product name[/]");
+        table.AddColumn("[bold green]Quantity[/]");
+        table.AddColumn("[bold green]Price[/]");
+        table.AddColumn("[bold green]Status[/]");
+        decimal totalAmount = 0;
+        foreach (var detail in orderDetails)
+        {
+            table.AddRow(detail.Product.Name, detail.Quantity.ToString(), detail.Product.Price.ToString(), order.Status);
+            totalAmount += detail.Product.Price * detail.Quantity;
+        }
+        table.Expand();
+        AnsiConsole.Render(table);
+        string newStatus;
+        while (true)
+        {
+            AnsiConsole.MarkupLine("[bold green]Enter new order status:[/]");
+            newStatus = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(newStatus))
+            {
+            break;
+            }
+            AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid order status.[/]");
+        }
         order.Status = newStatus;
         AnsiConsole.MarkupLine("[bold green]Do you want to update the order status? (y/n)[/]");
         string answer = Console.ReadLine();
