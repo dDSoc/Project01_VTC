@@ -17,19 +17,19 @@ public static class SearchController
     public static void SearchProductByCategory()
     {
         AnsiConsole.MarkupLine("[bold][green]Enter the name of the category to search: [/][/]");
-        string categoryName = Console.ReadLine().Trim(); // Xóa khoảng trắng ở đầu và cuối chuỗi
+        string categoryName = Console.ReadLine().Trim(); // Remove whitespace
 
         using var db = new ApplicationDbContext();
         var category = db.Categories.FirstOrDefault(c => c.Name.ToLower().Contains(categoryName.ToLower()));
 
         if (category == null)
         {
-            MenuController.products = new List<Product>();
+            MenuController.products = new List<Product>(); // Empty list
         }
         else
         {
             var products = db.Products.Where(p => p.CategoryId == category.Id).ToList();
-            MenuController.products = products;
+            MenuController.products = products; // Set products list
         }
     }
     // Search product by price range
@@ -37,20 +37,20 @@ public static class SearchController
     {
         AnsiConsole.MarkupLine("[bold green]Enter the minimum price:[/]");
         decimal minPrice;
-        while (!decimal.TryParse(Console.ReadLine(), out minPrice))
+        while (!decimal.TryParse(Console.ReadLine(), out minPrice)) // Check if input is a decimal number
         {
             AnsiConsole.MarkupLine("[yellow]Invalid input! Please enter a valid decimal number.\n[/]");
             AnsiConsole.MarkupLine("[bold green]Enter the minimum price:[/]");
         }
         AnsiConsole.MarkupLine("[bold green]\nEnter the maximum price:[/]");
         decimal maxPrice;
-        while (!decimal.TryParse(Console.ReadLine(), out maxPrice))
+        while (!decimal.TryParse(Console.ReadLine(), out maxPrice)) // Check if input is a decimal number
         {
             AnsiConsole.MarkupLine("[yellow]Invalid input! Please enter a valid decimal number.\n[/]");
             AnsiConsole.MarkupLine("[bold green]Enter the maximum price:[/]");
         }
         using var db = new ApplicationDbContext();
         var products = db.Products.Where(p => p.Price >= minPrice && p.Price <= maxPrice).ToList();
-        MenuController.products = products;
+        MenuController.products = products; // Set products list
     }
 }

@@ -7,6 +7,7 @@ class ApplicationController
 {
     static void Main(string[] args)
     {
+        // Main function of the application
         MenuController.DefaultMenuController();
     }
 }

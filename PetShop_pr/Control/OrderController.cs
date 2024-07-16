@@ -7,43 +7,46 @@ using Spectre.Console;
 
 public static class OderController
 {
+    // Order management menu function
     public static void ManagementOrder()
     {
         while (true)
-        {
-            Menu.OrderManagementMenu();
+        {   
+            Menu.OrderManagementMenu();//Call order management menu
             AnsiConsole.Markup("[bold green]Enter your choice:[/]");
             string choice = Console.ReadLine();
-
+            // Switch case for order management menu
             switch (choice)
             {
                 case "1":
-                    SearhOrder();
+                    SearhOrder();//Call search order function
                     break;
                 case "2":
-                    ShowAllOrderList();
+                    ShowAllOrderList();//Call show all order list function
                     AnsiConsole.MarkupLine("[bold green]Press any key to continue.[/]");
                     Console.ReadKey();
                     break;
                 case "3":
-                    UpdateOrderStatus();
+                    UpdateOrderStatus();//Call update order status function
                     break;
                 case "0":
-                    StoreManagerController.StoreManagementMenu();
+                    StoreManagerController.StoreManagementMenu();//Call store management menu function to back to store management menu
                     break;
             }
         }
     }
 
+    // Update order status function
     private static void UpdateOrderStatus()
     {
         using var db = new ApplicationDbContext();
         AnsiConsole.Markup("[bold green]Enter order ID:[/]");
         string input = Console.ReadLine();
         int orderId;
+        // Loop until user enter a valid order ID
         while (true)
         {
-            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out orderId))
+            if (string.IsNullOrWhiteSpace(input) || !int.TryParse(input, out orderId))
             {
                 AnsiConsole.MarkupLine("[bold red]Invalid order ID![/]");
                 AnsiConsole.Markup("[bold green]Enter order ID:[/]");
@@ -59,21 +62,24 @@ public static class OderController
             }
             else
             {
-                UpdateOrderStatusByID(orderId);
+                UpdateOrderStatusByID(orderId);//Call update order status by ID function
                 break;
             }
         }
     }
 
+    // Show all order list function
     private static void ShowAllOrderList()
     {
         using var db = new ApplicationDbContext();
         var orders = db.Orders.Include(o => o.OrderItems).ToList();
+        // Check if there is no order
         if (orders.Count == 0)
         {
             AnsiConsole.MarkupLine("[bold red]No order found![/]");
             return;
         }
+        // Display all orders
         var table = new Table()
         {
             Border = TableBorder.Rounded,
@@ -94,6 +100,7 @@ public static class OderController
         }
         table.Expand();
         AnsiConsole.Render(table);
+        // Ask user if they want to update order status
         AnsiConsole.MarkupLine("[bold green]Do you want to update order status? (Y/N)[/]");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
@@ -130,12 +137,14 @@ public static class OderController
         }
     }
 
+    // Search order function
     private static void SearhOrder()
     {
         using var db = new ApplicationDbContext();
         AnsiConsole.Markup("[bold green]Enter order ID:[/]");
         string input = Console.ReadLine();
         int orderId;
+        // Loop until user enter a valid order ID
         while (true)
         {
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out orderId))
@@ -154,9 +163,10 @@ public static class OderController
             }
             break;
         }
-        ShowOrderDetail(orderId);
+        ShowOrderDetail(orderId);//Call show order detail function
     }
 
+    // Show order detail function by order ID
     public static void ShowOrderDetail(int OrderID)
     {
         Console.Clear();
@@ -182,10 +192,11 @@ public static class OderController
         tableOrderDetails.AddColumn("[bold green]Price[/]");
 
         decimal totalAmount = 0;
+        // Display order details in table
         foreach (var detail in orderDetails)
         {
             tableOrderDetails.AddRow(detail.Product.Name, detail.Quantity.ToString(), detail.Product.Price.ToString());
-            totalAmount += detail.Product.Price * detail.Quantity;
+            totalAmount += detail.Product.Price * detail.Quantity;//Calculate total amount
         }
         tableOrderDetails.Expand();
 
@@ -195,7 +206,7 @@ public static class OderController
         };
         tableTotalAmount.AddColumn($"[bold green]Total amount: {totalAmount}[/]");
         tableTotalAmount.Expand();
-
+        // Display order details
         var mainTable = new Table()
         {
             Title = new TableTitle($"[bold green]OrderID {OrderID} details[/]"),
@@ -205,6 +216,7 @@ public static class OderController
         mainTable.AddRow(tableTotalAmount);
         mainTable.Expand();
         AnsiConsole.Render(mainTable);
+        // Ask user if they want to update order status
         AnsiConsole.MarkupLine("[bold green]Do you want do update order status? (Y/N)[/]");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
@@ -219,6 +231,7 @@ public static class OderController
         }
     }
 
+    // Update order status by order ID function
     private static void UpdateOrderStatusByID(int OrderID)
     {
         using var db = new ApplicationDbContext();
@@ -239,6 +252,7 @@ public static class OderController
         table.AddColumn("[bold green]Quantity[/]");
         table.AddColumn("[bold green]Price[/]");
         table.AddColumn("[bold green]Status[/]");
+        // Display order details in table
         decimal totalAmount = 0;
         foreach (var detail in orderDetails)
         {
@@ -248,6 +262,7 @@ public static class OderController
         table.Expand();
         AnsiConsole.Render(table);
         string newStatus;
+        // Loop until user enter a valid order status
         while (true)
         {
             AnsiConsole.MarkupLine("[bold green]Enter new order status:[/]");

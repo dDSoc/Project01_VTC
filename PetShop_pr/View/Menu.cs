@@ -6,18 +6,16 @@ class Menu
     // Display the Welcome screen panel
     public static void Panel()
     {
-         // Tạo tiêu đề lớn
         var panel = new Panel(new FigletText("PET SHOP").Centered().Color(Color.Aqua))
         {
             Border = BoxBorder.Square,
             Padding = new Padding(1, 1),
         };
 
-        // Hiển thị tiêu đề
         AnsiConsole.Write(panel);
     }
 
-    //Display the default menu screen
+    //Display the default menu screen for the application
     public static void DefaultMenu()
     {
         Console.Clear();
@@ -70,7 +68,7 @@ class Menu
         AnsiConsole.Write(mainTable);
     }
 
-
+    // Display the search menu for the application
     public static void CustomerMenu()
     {
         Console.Clear();
@@ -130,7 +128,7 @@ class Menu
         AnsiConsole.Write(mainTable);
     }
 
-
+    // Display the search menu for the application
     public static void CustomerMenu_Search()
     {
         Console.Clear();
@@ -185,6 +183,7 @@ class Menu
     }
 
 
+    // Display the search menu for the application
     public static void StoreManagerMenu()
     {
         Console.Clear();
@@ -242,20 +241,7 @@ class Menu
         AnsiConsole.Write(mainTable);
     }
 
-    public static void ShopOwnerMenu()
-    {
-        Panel();
-
-        // Hiển thị thông tin đã nhập
-        var table = new Table();
-        table.AddColumn(new TableColumn("Shop owner menu").LeftAligned());
-        table.AddRow($"[bold yellow]1.[/] [bold]View dasboard[/] ");
-        table.AddRow($"[bold yellow]2.[/] [bold]Exit[/] ");
-
-
-        AnsiConsole.Write(table);
-        AnsiConsole.MarkupLine("[bold green]Enter your choice:[/]");
-    }
+    // Display the search menu for the application
     public static void LoginMenu()
     {
         Console.Clear();
@@ -269,7 +255,7 @@ class Menu
 
         AnsiConsole.Write(panel);
     }
-    // Display the register menu
+    // Display the register menu for the application
     public static void RequireLoginMenu()
     {
         Console.Clear();
@@ -317,7 +303,7 @@ class Menu
         AnsiConsole.Markup("[bold green]Enter your choice: [/]\n");
     }
 
-    // Display the product management menu
+    // Display the product management menu for the application
     public static void ProductManagementMenu()
     {
         Console.Clear();
@@ -368,7 +354,7 @@ class Menu
         mainTable.Expand();
         AnsiConsole.Write(mainTable);
     }
-    // Display the product management menu
+    // Display the product management menu for the application
     public static void ProductEditMenu(int ProductId)
     {
         Console.Clear();
@@ -437,7 +423,7 @@ class Menu
         AnsiConsole.Write(mainTable);
     }
 
-    // Display the Category management menu
+    // Display the Category management menu for the application
     public static void CategoryManagementMenu()
     {
         Console.Clear();
@@ -490,7 +476,7 @@ class Menu
         AnsiConsole.Write(mainTable);
     }
 
-    // Display the Order management menu
+    // Display the Order management menu for the application
     public static void OrderManagementMenu()
     {
         Console.Clear();
@@ -542,7 +528,7 @@ class Menu
         AnsiConsole.Write(mainTable);
     }
 
-    // Display the Dashboard management menu
+    // Display the Dashboard management menu for the application
     public static void DashboardManagementMenu()
     {
         Console.Clear();

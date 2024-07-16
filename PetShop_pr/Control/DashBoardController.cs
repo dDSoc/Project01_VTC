@@ -7,6 +7,7 @@ using Spectre.Console;
 
 public static class DashboardController
 {   
+    // Enum for month
     private enum Month
     {
         January = 1,
@@ -22,6 +23,8 @@ public static class DashboardController
         November = 11,
         December = 12
     }
+
+    // Dashboard management menu
     public static void DashboardManagement()
     {
         while (true)
@@ -49,6 +52,7 @@ public static class DashboardController
         }
     }
 
+    // Show best seller products
     private static void ShowBestSeller()
     {   
         Console.Clear();
@@ -68,6 +72,7 @@ public static class DashboardController
                 bestSeller.Add(item.Product.Name, item.Quantity);
             }
         }
+        // Get top 5 best seller products
         bestSeller = bestSeller.OrderByDescending(x => x.Value).Take(5).ToDictionary(x => x.Key, x => x.Value);
         AnsiConsole.MarkupLine("[bold green]Top 5 best seller products[/]");
         var table = new Table()
@@ -84,6 +89,7 @@ public static class DashboardController
         Console.ReadKey();
     }
 
+    // Show dashboard function
     private static void ShowDashboard()
     {
         Console.Clear();
@@ -108,6 +114,7 @@ public static class DashboardController
             .Header("[bold green]Revenue by month[/]");
         panel1.Expand();
         AnsiConsole.Render(panel1);
+        // Display revenue by month of year
         RevenueByMotnhOfYear(yearInt);
         //Display revenue by category
         var panel2 = new Panel("")
@@ -116,10 +123,12 @@ public static class DashboardController
         Console.WriteLine();
         Console.WriteLine();
         AnsiConsole.Render(panel2);
+        // Display revenue by category of year
         RevenueByCategory(yearInt);
         Console.ReadKey();
     }
 
+    // Revenue by month of year
     private static void RevenueByMotnhOfYear(int yearInt)
     {
         var db = new ApplicationDbContext();
@@ -127,6 +136,7 @@ public static class DashboardController
             .Where(o => o.CreatedAt.Year == yearInt)
             .ToList();
         var revenueByMonth = new Dictionary<Month, decimal>();
+        // Calculate revenue by month
         for (Month month = Month.January; month <= Month.December; month++)
         {
             var revenue = order
@@ -134,6 +144,7 @@ public static class DashboardController
             .Sum(o => o.TotalAmount);
             revenueByMonth.Add(month, revenue);
         }
+        //Draw chart revenue by month
         var chart = new BarChart()
             .Width(100)
             .Label($"{yearInt} Sales")
@@ -147,6 +158,7 @@ public static class DashboardController
         AnsiConsole.Render(chart);
     }
 
+    // Revenue by category of year
     private static void RevenueByCategory(int yearInt)
     {
         var db = new ApplicationDbContext();
@@ -158,7 +170,8 @@ public static class DashboardController
             .ToList();
         var revenueByCategory = new Dictionary<string, decimal>();
         decimal totalRevenue = 0;
-        foreach (var item in orderItem)
+        // Calculate revenue by category
+        foreach (var item in orderItem) // Loop through each order item
         {
             if (revenueByCategory.ContainsKey(item.Product.Category.Name))
             {
@@ -176,6 +189,7 @@ public static class DashboardController
         table.AddColumn("[bold green]Category[/]");
         table.AddColumn("[bold green]Revenue[/]");
         table.AddColumn("[bold green]Percentage[/]");
+        // Display revenue by category
         foreach (var item in revenueByCategory)
         {
             table.AddRow(item.Key, item.Value.ToString("C"), ((item.Value / totalRevenue) * 100).ToString("0.00") + "%");

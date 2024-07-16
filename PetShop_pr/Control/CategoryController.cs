@@ -7,6 +7,7 @@ using Spectre.Console;
 
 public static class CategoryController
 {
+    // Category management menu
     public static void ManagementCategory()
     {
         while (true)
@@ -34,13 +35,14 @@ public static class CategoryController
             }
         }
     }
-
+    // Add category function
     public static void AddCategory()
     {
         using var db = new ApplicationDbContext();
         var category = new Category();
         AnsiConsole.Markup("[bold green]Enter category name: [/]");
         string categoryName = Console.ReadLine();
+        // Validate category name
         while (string.IsNullOrWhiteSpace(categoryName))
         {
             AnsiConsole.MarkupLine("[bold red]Category name cannot be empty or contain only whitespace![/]");
@@ -50,6 +52,7 @@ public static class CategoryController
         category.Name = categoryName;
         AnsiConsole.Markup("[bold green]Enter category description: [/]");
         string categoryDescription = Console.ReadLine();
+        // Validate category description
         while (string.IsNullOrWhiteSpace(categoryDescription))
         {
             AnsiConsole.MarkupLine("[bold red]Category description cannot be empty![/]");
@@ -60,6 +63,7 @@ public static class CategoryController
         db.Categories.Add(category);
         AnsiConsole.MarkupLine("[bold yellow]Are you sure you want to add this category? (Y/N)[/]");
         string confirm = Console.ReadLine();
+        // Confirm adding category
         if (confirm.ToUpper() == "Y")
         {
             db.SaveChanges();
@@ -71,7 +75,7 @@ public static class CategoryController
             AnsiConsole.MarkupLine("[bold yellow]Category not added![/]");
         }
     }
-
+    // Show category function    
     public static void ShowCategory()
     {
         Console.Clear();
@@ -88,12 +92,14 @@ public static class CategoryController
         table.Expand();
         AnsiConsole.Render(table);
     }
-
+    // Update category function
     public static void UpdateCategory()
     {
         using var db = new ApplicationDbContext();
+        // Show all categories
         ShowCategory();
         int id;
+        // Get category ID to update
         while (true)
         {
             AnsiConsole.Markup("[bold green]Enter category ID to update:[/]");
@@ -107,7 +113,7 @@ public static class CategoryController
                 AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid category ID.[/]");
             }
         }
-        var category = db.Categories.Find(id);
+        var category = db.Categories.Find(id); // Find category by ID
         if (category == null)
         {
             AnsiConsole.MarkupLine("[bold red]Category not found, press any key to back[/]");
@@ -118,6 +124,7 @@ public static class CategoryController
         category.Name = Console.ReadLine();
         AnsiConsole.Markup("[bold green]Enter new category description:[/]");
         category.Description = Console.ReadLine();
+        // Confirm updating category
         AnsiConsole.Markup("[bold yellow]Are you sure you want to update this category? (Y/N)[/]");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")

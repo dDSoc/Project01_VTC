@@ -7,27 +7,28 @@ using Spectre.Console;
 
 public static class ProductController
 {
+    // Product management menu for store manager
     public static void ManagementProduct()
     {
         while (true)
         {
-            Menu.ProductManagementMenu();
+            Menu.ProductManagementMenu();//Call product management menu
             AnsiConsole.Markup("[bold green]Enter your choice:[/]");
             string choice = Console.ReadLine();
 
             switch (choice)
             {
                 case "1":
-                    AddProduct();
+                    AddProduct();//Call add product function
                     break;
                 case "2":
-                    EditProductManager();
+                    EditProductManager();//Call edit product function
                     break;
                 case "3":
-                    ShowProduct();
+                    ShowProduct();//Call show product function
                     break;
                 case "0":
-                    StoreManagerController.StoreManagementMenu();
+                    StoreManagerController.StoreManagementMenu();//Call store management menu to back to store management menu
                     break;
                 default:
                     AnsiConsole.MarkupLine("[bold red]Invalid choice. Press any key to continue.[/]");
@@ -37,6 +38,7 @@ public static class ProductController
         }
     }
 
+    // Show product list for store manager
     private static void ShowProduct()
     {
         Console.Clear();
@@ -49,24 +51,27 @@ public static class ProductController
         table.AddColumn("Description");
         table.AddColumn("Stock");
         table.AddColumn("Category");
+        // Add product to table
         foreach (var product in products)
         {
             table.AddRow(product.Id.ToString(), product.Name, product.Price.ToString(), product.Description, product.Stock.ToString(), product.Category.Name);
         }
         AnsiConsole.Render(table);
+
+        // Option to edit or add product or back
         AnsiConsole.MarkupLine("[bold yellow]1. Edit product[/]");
         AnsiConsole.MarkupLine("[bold yellow]2. Add product[/]");
         AnsiConsole.MarkupLine("[bold yellow]0. Back[/]");
-        // Implement pagination
         AnsiConsole.Markup("[bold green]Enter your choice:[/]");
         string choice = Console.ReadLine();
+        // Switch case for user choice
         switch (choice)
         {
             case "1":
-                EditProductManager();
+                EditProductManager();//Call edit product function
                 break;
             case "2":
-                AddProduct();
+                AddProduct();//Call add product function
                 break;
             case "0":
                 return;
@@ -77,6 +82,7 @@ public static class ProductController
         }
     }
 
+    // Add product function
     public static void AddProduct()
     {
         using var db = new ApplicationDbContext();
@@ -155,7 +161,7 @@ public static class ProductController
             Console.ReadKey();
         }
     }
-
+    // Edit product function
     public static void EditProductManager()
     {
         Console.Clear();
@@ -176,29 +182,30 @@ public static class ProductController
             Console.ReadKey();
             return;
         }
-        
+        // Show product information
         while (true)
         {
             Console.Clear();
-            Menu.ProductEditMenu(productId);
+            Menu.ProductEditMenu(productId);//Call product edit menu
             AnsiConsole.Markup("[bold green]Enter your choice:[/]");
             string choice = Console.ReadLine();
+            // Switch case for user choice
             switch (choice)
             {
             case "1":
-                EditProductName(product);
+                EditProductName(product);//Call edit product name function
                 break;
             case "2":
-                EditProductPrice(product);
+                EditProductPrice(product);//Call edit product price function
                 break;
             case "3":
-                EditProductDescription(product);
+                EditProductDescription(product);//Call edit product description function
                 break;
             case "4":
-                EditProductStock(product);
+                EditProductStock(product);//Call edit product stock function
                 break;
             case "5":
-                EditProductCategory(product);
+                EditProductCategory(product);//Call edit product category function
                 break;
             case "0":
                 return;
@@ -210,7 +217,7 @@ public static class ProductController
             db.SaveChanges();
         }
     }
-
+    // Edit product name function
     private static void EditProductCategory(Product product)
     {
         using var db = new ApplicationDbContext();
@@ -219,7 +226,8 @@ public static class ProductController
         {
             AnsiConsole.Markup("[bold green]Enter new product category:[/]");
             string categoryName = Console.ReadLine();
-            while (string.IsNullOrWhiteSpace(categoryName))
+            // Find category by name in database
+            while (string.IsNullOrWhiteSpace(categoryName))//Check if category name is null or empty
             {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product category.[/]");
             AnsiConsole.Markup("[bold green]Enter new product category:[/]");
@@ -247,12 +255,13 @@ public static class ProductController
         }
     }
 
+    // Edit product stock function for store manager
     private static void EditProductStock(Product product)
     {
         AnsiConsole.Markup("[bold green]Enter new product stock:[/]");
         int stock;
-
-        while (!int.TryParse(Console.ReadLine(), out stock) || stock <= 0 || stock > 1000000)
+        // Get new product stock
+        while (!int.TryParse(Console.ReadLine(), out stock) || stock <= 0 || stock > 1000000)//Check if stock is not a number or less than 0 or greater than 1.000.000
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid quantity (Max 1.000.000).[/]");
             AnsiConsole.Markup("[bold green]Enter new product stock:[/]");
@@ -272,12 +281,12 @@ public static class ProductController
             Console.ReadKey();
         }
     }
-
+    // Edit product description function
     private static void EditProductDescription(Product product)
     {
         AnsiConsole.Markup("[bold green]Enter new product description:[/]");
         string description = Console.ReadLine();
-        while (string.IsNullOrWhiteSpace(description))
+        while (string.IsNullOrWhiteSpace(description))//Check if description is null or empty
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product description.[/]");
             AnsiConsole.MarkupLine("[bold green]Enter new product description:[/]");
@@ -299,11 +308,12 @@ public static class ProductController
         }
     }
 
+    // Edit product price function
     private static void EditProductPrice(Product product)
     {
         AnsiConsole.Markup("[bold green]Enter new product price:[/]");
         decimal price;
-        while (!decimal.TryParse(Console.ReadLine(), out price) || price <= 0 || price > 1000000)
+        while (!decimal.TryParse(Console.ReadLine(), out price) || price <= 0 || price > 1000000)//Check if price is not a number or less than 0 or greater than 1.000.000
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid price (Max 1.000.000).[/]");
             AnsiConsole.Markup("[bold green]Enter new product price:[/]");
@@ -324,11 +334,12 @@ public static class ProductController
         }
     }
 
+    // Edit product name function
     private static void EditProductName(Product product)
     {
         AnsiConsole.Markup("[bold green]Enter new product name:[/]");
         string name = Console.ReadLine();
-        while (string.IsNullOrWhiteSpace(name))
+        while (string.IsNullOrWhiteSpace(name))//Check if name is null or empty
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product name.[/]");
             AnsiConsole.Markup("[bold green]Enter new product name:[/]");
@@ -349,6 +360,8 @@ public static class ProductController
             Console.ReadKey();
         }
     }
+
+    // Show product by ID
     public static Table ShowProducById(int productId)
     {
         using var db = new ApplicationDbContext();
