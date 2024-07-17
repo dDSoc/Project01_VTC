@@ -45,7 +45,7 @@ public static class DashboardController
                     StoreManagerController.StoreManagementMenu();
                     break;
                 default:
-                    AnsiConsole.MarkupLine("[bold red]Invalid choice. Press any key to continue.[/]");
+                    AnsiConsole.Markup("[bold red]Invalid choice. Press any key to continue.[/]");
                     Console.ReadKey();
                     break;
             }
@@ -85,7 +85,7 @@ public static class DashboardController
         }
         table.Expand();
         AnsiConsole.Render(table);
-        AnsiConsole.MarkupLine("[bold green]Press any key to continue...[/]");
+        AnsiConsole.Markup("[bold green]Press any key to continue...[/]");
         Console.ReadKey();
     }
 
@@ -125,7 +125,6 @@ public static class DashboardController
         AnsiConsole.Render(panel2);
         // Display revenue by category of year
         RevenueByCategory(yearInt);
-        Console.ReadKey();
     }
 
     // Revenue by month of year
@@ -196,7 +195,7 @@ public static class DashboardController
         }
         table.Expand();
         AnsiConsole.Render(table);
-        AnsiConsole.MarkupLine("[bold green]Press any key to continue...[/]");
+        AnsiConsole.Markup("[bold green]Press any key to continue...[/]");
         Console.ReadKey();
     }
 }

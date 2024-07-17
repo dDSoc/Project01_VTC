@@ -31,7 +31,7 @@ public static class ProductController
                     StoreManagerController.StoreManagementMenu();//Call store management menu to back to store management menu
                     break;
                 default:
-                    AnsiConsole.MarkupLine("[bold red]Invalid choice. Press any key to continue.[/]");
+                    AnsiConsole.Markup("[bold red]Invalid choice. Press any key to continue.[/]");
                     Console.ReadKey();
                     break;
             }
@@ -76,7 +76,7 @@ public static class ProductController
             case "0":
                 return;
             default:
-                AnsiConsole.MarkupLine("[bold red]Invalid choice. Press any key to continue.[/]");
+                AnsiConsole.Markup("[bold red]Invalid choice. Press any key to continue.[/]");
                 Console.ReadKey();
                 break;
         }
@@ -140,24 +140,24 @@ public static class ProductController
             category = db.Categories.FirstOrDefault(c => c.Name == categoryName);
             if (category == null)
             {
-            AnsiConsole.MarkupLine("[bold red]Category not found![/]");
+            AnsiConsole.Markup("[bold red]Category not found![/]");
             }
         }
 
         // Confirm adding product
-        AnsiConsole.MarkupLine("[bold yellow]Are you sure you want to add this product? (Y/N):[/]");
+        AnsiConsole.Markup("[bold yellow]Are you sure you want to add product? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
             product.Category = category;
             db.Products.Add(product);
             db.SaveChanges();
-            AnsiConsole.MarkupLine("[bold green]Product added successfully!, press any key to back[/]");
+            AnsiConsole.Markup("[bold green]Product added successfully!, press any key to back[/]");
             Console.ReadKey();
         }
         else
         {
-            AnsiConsole.MarkupLine("[bold yellow]Product not added!, press any key to back[/]");
+            AnsiConsole.Markup("[bold yellow]Product not added!, press any key to back[/]");
             Console.ReadKey();
         }
     }
@@ -210,7 +210,7 @@ public static class ProductController
             case "0":
                 return;
             default:
-                AnsiConsole.MarkupLine("[bold red]Invalid choice. Press any key to continue.[/]");
+                AnsiConsole.Markup("[bold red]Invalid choice. Press any key to continue.[/]");
                 Console.ReadKey();
                 break;
             }
@@ -236,21 +236,21 @@ public static class ProductController
             category = db.Categories.FirstOrDefault(c => c.Name == categoryName);
             if (category == null)
             {
-            AnsiConsole.MarkupLine("[bold red]Category not found![/]");
+            AnsiConsole.Markup("[bold red]Category not found![/]");
             }
         }
         // Confirm updating product category
-        AnsiConsole.MarkupLine("[bold yellow]Are you sure you want to update the product category? (Y/N):[/]");
+        AnsiConsole.Markup("[bold yellow]Are you sure you want to update? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
             product.Category = category;
-            AnsiConsole.MarkupLine("[bold green]Product updated successfully!, press any key to back[/]");
+            AnsiConsole.Markup("[bold green]Product updated successfully!, press any key to back[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.MarkupLine("[bold yellow]Product category not updated!, press any key to back[/]");
+            AnsiConsole.Markup("[bold yellow]Product category not updated!, press any key to back[/]");
             Console.ReadKey();
         }
     }
@@ -267,17 +267,17 @@ public static class ProductController
             AnsiConsole.Markup("[bold green]Enter new product stock:[/]");
         }
         // Confirm updating product stock
-        AnsiConsole.MarkupLine("[bold yellow]Are you sure you want to update the product stock? (Y/N):[/]");
+        AnsiConsole.Markup("[bold yellow]Are you sure you want to change? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
             product.Stock = stock;
-            AnsiConsole.MarkupLine("[bold green]Product updated successfully!, press any key to back[/]");
+            AnsiConsole.Markup("[bold green]Product updated successfully!, press any key to back[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.MarkupLine("[bold yellow]Product stock not updated!, press any key to back[/]");
+            AnsiConsole.Markup("[bold yellow]Product stock not updated!, press any key to back[/]");
             Console.ReadKey();
         }
     }
@@ -289,21 +289,21 @@ public static class ProductController
         while (string.IsNullOrWhiteSpace(description))//Check if description is null or empty
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product description.[/]");
-            AnsiConsole.MarkupLine("[bold green]Enter new product description:[/]");
+            AnsiConsole.Markup("[bold green]Enter new product description:[/]");
             description = Console.ReadLine();
         }
         // Confirm updating product description
-        AnsiConsole.MarkupLine("[bold yellow]Are you sure you want to update the product description? (Y/N):[/]");
+        AnsiConsole.Markup("[bold yellow]Are you sure you want to update? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
             product.Description = description;
-            AnsiConsole.MarkupLine("[bold green]Product updated successfully!, press any key to back[/]");
+            AnsiConsole.Markup("[bold green]Product updated successfully!, press any key to back[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.MarkupLine("[bold yellow]Product description not updated!, press any key to back[/]");
+            AnsiConsole.Markup("[bold yellow]Product description not updated!, press any key to back[/]");
             Console.ReadKey();
         }
     }
@@ -319,17 +319,17 @@ public static class ProductController
             AnsiConsole.Markup("[bold green]Enter new product price:[/]");
         }
         // Confirm updating product price
-        AnsiConsole.MarkupLine("[bold yellow]Are you sure you want to update the product price? (Y/N):[/]");
+        AnsiConsole.Markup("[bold yellow]Are you sure you want to update? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
             product.Price = price;
-            AnsiConsole.MarkupLine("[bold green]Product updated successfully!, press any key to back[/]");
+            AnsiConsole.Markup("[bold green]Product updated successfully!, press any key to back[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.MarkupLine("[bold yellow]Product price not updated!, press any key to back[/]");
+            AnsiConsole.Markup("[bold yellow]Product price not updated!, press any key to back[/]");
             Console.ReadKey();
         }
     }
@@ -346,17 +346,17 @@ public static class ProductController
             name = Console.ReadLine();
         }
         // Confirm updating product name
-        AnsiConsole.MarkupLine("[bold yellow]Are you sure you want to update the product name? (Y/N):[/]");
+        AnsiConsole.Markup("[bold yellow]Are you sure you want to update? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
             product.Name = name;
-            AnsiConsole.MarkupLine("[bold green]Product updated successfully!, press any key to back[/]");
+            AnsiConsole.Markup("[bold green]Product updated successfully!, press any key to back[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.MarkupLine("[bold yellow]Product name not updated!, press any key to back[/]");
+            AnsiConsole.Markup("[bold yellow]Product name not updated!, press any key to back[/]");
             Console.ReadKey();
         }
     }

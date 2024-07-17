@@ -177,9 +177,6 @@ class Menu
         mainTable.AddRow(table4);
 
         AnsiConsole.Write(mainTable);
-
-        AnsiConsole.MarkupLine("[bold green]Enter your choice:[/]");
-
     }
 
 
@@ -300,7 +297,7 @@ class Menu
         mainTable.AddRow(table4);
 
         AnsiConsole.Write(mainTable);
-        AnsiConsole.Markup("[bold green]Enter your choice: [/]\n");
+        AnsiConsole.Markup("[bold green]Enter your choice: [/]");
     }
 
     // Display the product management menu for the application

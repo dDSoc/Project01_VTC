@@ -21,9 +21,9 @@ public static class UserController
             using (var context = new ApplicationDbContext())
             {
                 // Get login information from the user
-                var username = AnsiConsole.Ask<string>("[bold Aqua]->[/] [bold Aqua]Username:[/] ");
+                var username = AnsiConsole.Ask<string>("[bold Aqua]->[/] [bold Aqua]Username: [/] ");
                 var password = AnsiConsole.Prompt(
-                    new TextPrompt<string>("[bold Aqua]->[/] [bold Aqua]Password:[/] ")
+                    new TextPrompt<string>("[bold Aqua]->[/] [bold Aqua]Password: [/] ")
                         .Secret());
 
                 // Find the user in the database
@@ -88,7 +88,7 @@ public static class UserController
             existingUser = db.Users.FirstOrDefault(u => u.Username == username); // Assign the existingUser value
             if (existingUser != null)
             {
-                AnsiConsole.MarkupLine("[bold red]Username already exists![/]");
+                AnsiConsole.Markup("[bold red]Username already exists![/]");
             }
         } while (existingUser != null);
         user.Username = username; // Assign the username value
@@ -114,6 +114,7 @@ public static class UserController
             AnsiConsole.Markup("[bold green]Enter address: [/]");
             address = Console.ReadLine();
         }
+        user.Address = address;
         string password;
         string passwordConfirm;
         do
@@ -132,7 +133,7 @@ public static class UserController
         user.Password = password; // Assign the password value
         user.Role = "customer"; 
         string confirm = AnsiConsole.Prompt(
-            new TextPrompt<string>("[bold green]Do you want to register this account? (Y/N): [/]")
+            new TextPrompt<string>("[bold yellow]Are you sure you want to register? ([/][bold green]Y[/]/[bold red]N[/])")
             .AllowEmpty()
             .Validate(choice =>
             {
@@ -144,7 +145,7 @@ public static class UserController
             }));
         if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.MarkupLine("[bold yellow]Registration cancelled, press any key to continue[/]");
+            AnsiConsole.Markup("[bold yellow]Registration cancelled, press any key to continue[/]");
             Console.ReadKey();
             return; // Don't register and return to main menu
         }
@@ -203,7 +204,7 @@ public static class UserController
         var product = db.Products.Find(productId);
         if (product == null)
         {
-            AnsiConsole.MarkupLine("[bold red]Product not found, press any key to back[/]");
+            AnsiConsole.Markup("[bold red]Product not found, press any key to back[/]");
             Console.ReadKey();
             return;
         }
@@ -448,7 +449,7 @@ public static class UserController
         userInfo.Expand();
         AnsiConsole.Render(userInfo);
         // Confirm checkout order
-        AnsiConsole.MarkupLine("[bold green]Do you want to checkout? ([/][bold yellow]Y[/]/[bold red]N[/])");
+        AnsiConsole.Markup("[bold green]Do you want to checkout? ([/][bold yellow]Y[/]/[bold red]N[/])");
         string confirmation = Console.ReadLine();
         if (confirmation.ToUpper() == "Y")
         {
@@ -469,15 +470,14 @@ public static class UserController
                     db.Products.Update(product);
                     db.Carts.RemoveRange(carts);
                     db.SaveChanges();
-                    AnsiConsole.MarkupLine("[bold green]Checkout successful, press any key to continue[/]");
+                    AnsiConsole.Markup("[bold green]Checkout successful, press any key to continue[/]");
                     Console.ReadKey();
                 }
-
             }
         }
         else if (confirmation.ToUpper() == "N")
         {
-            AnsiConsole.MarkupLine("[bold yellow]Checkout cancelled, press any key to continue[/]");
+            AnsiConsole.Markup("[bold yellow]Checkout cancelled, press any key to continue[/]");
             Console.ReadKey();
         }
         else
@@ -640,7 +640,7 @@ public static class UserController
         {
             Console.Clear();
             AnsiConsole.MarkupLine("[bold red]Order ID cannot be empty\n[/]");
-            AnsiConsole.MarkupLine("[bold green]Press any key to go back[/]");
+            AnsiConsole.Markup("[bold green]Press any key to go back[/]");
             Console.ReadKey();
             return;
         }
@@ -648,7 +648,7 @@ public static class UserController
         {
             Console.Clear();
             AnsiConsole.MarkupLine("[bold red]Invalid order ID\n[/]");
-            AnsiConsole.MarkupLine("[bold green]Press any key to go back[/]");
+            AnsiConsole.Markup("[bold green]Press any key to go back[/]");
             Console.ReadKey();
             return;
         }
@@ -657,7 +657,7 @@ public static class UserController
         {
             Console.Clear();
             AnsiConsole.MarkupLine("[bold yellow]Order not found\n[/]");
-            AnsiConsole.MarkupLine("[bold green]Press any key to go back[/]");
+            AnsiConsole.Markup("[bold green]Press any key to go back[/]");
             Console.ReadKey();
             return;
         }
@@ -665,7 +665,7 @@ public static class UserController
         if (orderDetail.Count == 0)
         {   Console.Clear();
             AnsiConsole.MarkupLine("[bold]Empty order!!\n[/]");
-            AnsiConsole.MarkupLine("[bold green]Press any key to go back[/]");
+            AnsiConsole.Markup("[bold green]Press any key to go back[/]");
             Console.ReadKey();
             return;
         }
@@ -703,7 +703,7 @@ public static class UserController
         mainTable.Expand();
         AnsiConsole.Render(mainTable);
 
-        AnsiConsole.MarkupLine("[bold green]Press any key to go back[/]");
+        AnsiConsole.Markup("[bold green]Press any key to go back[/]");
         Console.ReadKey();
     }
 
@@ -712,7 +712,7 @@ public static class UserController
     {
         ShowProfile(); // Show user profile
         // Confirm edit profile
-        AnsiConsole.MarkupLine("[bold green]Do you want to edit your profile? ([/][bold yellow]Y[/]/[bold red]N[/])");
+        AnsiConsole.Markup("[bold green]Do you want to edit your profile? ([/][bold yellow]Y[/]/[bold red]N[/])");
         string confirmation = Console.ReadLine();
         if (confirmation.ToUpper() == "N")
         {
@@ -771,7 +771,7 @@ public static class UserController
         {
             if (string.IsNullOrWhiteSpace(newEmail))
             {
-                AnsiConsole.MarkupLine("[bold yellow]Email cannot be empty. Please enter again.\n[/]");
+                AnsiConsole.Markup("[bold yellow]Email cannot be empty. Please enter again.\n[/]");
             }
             else
             {
@@ -820,22 +820,22 @@ public static class UserController
     //User logout function
     public static void Logout()
     {
-        AnsiConsole.MarkupLine("[bold yellow]Are you sure you want to log out? ([/][bold green]Y[/]/[bold red]N[/])");
+        AnsiConsole.Markup("[bold yellow]Are you sure you want to log out? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirmation = Console.ReadLine();
         if (confirmation.ToUpper() == "Y")
         {
             user = null;
-            AnsiConsole.MarkupLine("[bold green]Log out successful, press any key to continue[/]");
+            AnsiConsole.Markup("[bold green]Log out successful, press any key to continue[/]");
             Console.ReadKey();
         }
         else if (confirmation.ToUpper() == "N")
         {
-            AnsiConsole.MarkupLine("[bold yellow]Log out cancelled, press any key to continue[/]");
+            AnsiConsole.Markup("[bold yellow]Log out cancelled, press any key to continue[/]");
             Console.ReadKey();
         }
         else
         {
-            AnsiConsole.MarkupLine("[bold red]Invalid choice, press any key to continue[/]");
+            AnsiConsole.Markup("[bold red]Invalid choice, press any key to continue[/]");
             Console.ReadKey();
         }
     }

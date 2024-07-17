@@ -62,6 +62,7 @@ public static class MenuController
         while (true)
         {
             Menu.CustomerMenu_Search();//Show search menu
+            AnsiConsole.Markup("[bold green]Enter your choice:[/]");
             string choice = Console.ReadLine();
             // Switch case for search menu
             switch (choice)
@@ -89,7 +90,7 @@ public static class MenuController
                     }
                     break;
                 default:
-                    AnsiConsole.MarkupLine("[bold yellow]Function does not exist, press any key to continue[/]");
+                    AnsiConsole.Markup("[bold yellow]Function does not exist, press any key to continue[/]");
                     Console.ReadKey();
                     break;
             }
@@ -102,7 +103,7 @@ public static class MenuController
         Console.Clear();
         if(products.Count == 0)
         {
-            AnsiConsole.MarkupLine("[bold yellow]No product found! Press any key to continue[/]");
+            AnsiConsole.Markup("[bold yellow]No product found! Press any key to back[/]");
             Console.ReadKey();
             return;
         }
@@ -209,7 +210,7 @@ public static class MenuController
                     break;
                 default:
                     Console.WriteLine("");
-                    AnsiConsole.MarkupLine("[bold yellow]Function does not exist, press any key to continue[/]");
+                    AnsiConsole.Markup("[bold yellow]Function does not exist, press any key to continue[/]");
                     Console.ReadKey();
                     break;
             }

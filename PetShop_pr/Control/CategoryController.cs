@@ -23,7 +23,7 @@ public static class CategoryController
                     break;
                 case "2":
                     ShowCategory();
-                    AnsiConsole.MarkupLine("[bold green]Press any key to continue...[/]");
+                    AnsiConsole.Markup("[bold green]Press any key to continue...[/]");
                     Console.ReadKey();
                     break;
                 case "3":
@@ -55,24 +55,25 @@ public static class CategoryController
         // Validate category description
         while (string.IsNullOrWhiteSpace(categoryDescription))
         {
-            AnsiConsole.MarkupLine("[bold red]Category description cannot be empty![/]");
+            AnsiConsole.MarkupLine("[bold red]Category description cannot be empty contain only whitespace![/]");
             AnsiConsole.Markup("[bold green]Enter category description: [/]");
             categoryDescription = Console.ReadLine();
         }
         category.Description = categoryDescription;
         db.Categories.Add(category);
-        AnsiConsole.MarkupLine("[bold yellow]Are you sure you want to add this category? (Y/N)[/]");
+        AnsiConsole.Markup("[bold yellow]Are you sure you want to add? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         // Confirm adding category
         if (confirm.ToUpper() == "Y")
         {
             db.SaveChanges();
-            AnsiConsole.MarkupLine("[bold green]Category added successfully!, press any key to continue...[/]");
+            AnsiConsole.Markup("[bold green]Category added successfully!, press any key to continue...[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.MarkupLine("[bold yellow]Category not added![/]");
+            AnsiConsole.Markup("[bold yellow]Category not added![/]");
+            Console.ReadKey();
         }
     }
     // Show category function    
@@ -125,17 +126,17 @@ public static class CategoryController
         AnsiConsole.Markup("[bold green]Enter new category description:[/]");
         category.Description = Console.ReadLine();
         // Confirm updating category
-        AnsiConsole.Markup("[bold yellow]Are you sure you want to update this category? (Y/N)[/]");
+        AnsiConsole.Markup("[bold yellow]Are you sure you want to update? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
             db.SaveChanges();
-            AnsiConsole.MarkupLine("[bold green]Category updated successfully!, press any key to continue...[/]");
+            AnsiConsole.Markup("[bold green]Category updated successfully! Press any key to continue.[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.MarkupLine("[bold yellow]Category not updated![/]");
+            AnsiConsole.Markup("[bold yellow]Category not updated! Press any key to continue.[/]");
             Console.ReadKey();
         }
     }
