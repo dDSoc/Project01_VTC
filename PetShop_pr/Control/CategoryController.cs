@@ -40,34 +40,38 @@ public static class CategoryController
     {
         using var db = new ApplicationDbContext();
         var category = new Category();
+        
+        // Validate category name
         AnsiConsole.Markup("[bold green]Enter category name: [/]");
         string categoryName = Console.ReadLine();
-        // Validate category name
-        while (string.IsNullOrWhiteSpace(categoryName))
+        while (!DataValidator.ValidateCategoryName(categoryName))
         {
-            AnsiConsole.MarkupLine("[bold red]Category name cannot be empty or contain only whitespace![/]");
+            AnsiConsole.MarkupLine("[bold red]Invalid category name. Category name cannot be empty, contain only whitespace, and should be less than 100 characters![/]");
             AnsiConsole.Markup("[bold green]Enter category name: [/]");
             categoryName = Console.ReadLine();
         }
         category.Name = categoryName;
+
+        // Validate category description
         AnsiConsole.Markup("[bold green]Enter category description: [/]");
         string categoryDescription = Console.ReadLine();
-        // Validate category description
-        while (string.IsNullOrWhiteSpace(categoryDescription))
+        while (!DataValidator.ValidateDescriptionCategory(categoryDescription))
         {
-            AnsiConsole.MarkupLine("[bold red]Category description cannot be empty contain only whitespace![/]");
+            AnsiConsole.MarkupLine("[bold red]Invalid category description. Description cannot be empty, contain only whitespace, and should be less than 250 characters![/]");
             AnsiConsole.Markup("[bold green]Enter category description: [/]");
             categoryDescription = Console.ReadLine();
         }
         category.Description = categoryDescription;
+
         db.Categories.Add(category);
+        
+        // Confirm adding category
         AnsiConsole.Markup("[bold yellow]Are you sure you want to add? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
-        // Confirm adding category
         if (confirm.ToUpper() == "Y")
         {
             db.SaveChanges();
-            AnsiConsole.Markup("[bold green]Category added successfully!, press any key to continue...[/]");
+            AnsiConsole.Markup("[bold green]Category added successfully! Press any key to continue...[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
@@ -76,6 +80,7 @@ public static class CategoryController
             Console.ReadKey();
         }
     }
+
     // Show category function    
     public static void ShowCategory()
     {
@@ -105,13 +110,13 @@ public static class CategoryController
         {
             AnsiConsole.Markup("[bold green]Enter category ID to update:[/]");
             string input = Console.ReadLine();
-            if (int.TryParse(input, out id))
+            if (DataValidator.ValidateID(input) && int.TryParse(input, out id))
             {
                 break;
             }
             else
             {
-                AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid category ID.[/]");
+                AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid category ID (0 to 1000000).[/]");
             }
         }
         var category = db.Categories.Find(id); // Find category by ID
@@ -121,10 +126,29 @@ public static class CategoryController
             Console.ReadKey();
             return;
         }
+
+        // Validate new category name
         AnsiConsole.Markup("[bold green]Enter new category name:[/]");
-        category.Name = Console.ReadLine();
+        string newCategoryName = Console.ReadLine();
+        while (!DataValidator.ValidateCategoryName(newCategoryName))
+        {
+            AnsiConsole.MarkupLine("[bold red]Invalid category name. Category name cannot be empty, contain only whitespace, and should be less than 100 characters![/]");
+            AnsiConsole.Markup("[bold green]Enter new category name:[/]");
+            newCategoryName = Console.ReadLine();
+        }
+        category.Name = newCategoryName;
+
+        // Validate new category description
         AnsiConsole.Markup("[bold green]Enter new category description:[/]");
-        category.Description = Console.ReadLine();
+        string newCategoryDescription = Console.ReadLine();
+        while (!DataValidator.ValidateDescriptionCategory(newCategoryDescription))
+        {
+            AnsiConsole.MarkupLine("[bold red]Invalid category description. Description cannot be empty, contain only whitespace, and should be less than 250 characters![/]");
+            AnsiConsole.Markup("[bold green]Enter new category description:[/]");
+            newCategoryDescription = Console.ReadLine();
+        }
+        category.Description = newCategoryDescription;
+
         // Confirm updating category
         AnsiConsole.Markup("[bold yellow]Are you sure you want to update? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
@@ -140,5 +164,4 @@ public static class CategoryController
             Console.ReadKey();
         }
     }
-
 }

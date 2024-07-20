@@ -12,6 +12,7 @@ public static class StoreManagerController
     {
         while (true)
         {
+            Console.Clear();
             Menu.StoreManagerMenu(); // Display store management menu
             AnsiConsole.Markup("[bold green]Enter your choice: [/]");
             string choice = Console.ReadLine();

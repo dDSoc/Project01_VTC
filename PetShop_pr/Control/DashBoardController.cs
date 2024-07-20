@@ -96,27 +96,27 @@ public static class DashboardController
         string year = null;
         while (string.IsNullOrWhiteSpace(year))
         {
-            AnsiConsole.Markup("[bold green]Enter year (0-10000): [/]");
+            AnsiConsole.Markup("[bold green]Enter year: [/]");
             string input = Console.ReadLine();
-            if (int.TryParse(input, out int result) && result >= 0 && result <= 10000)
+            if (DataValidator.ValidateYear(input))
             {
-            year = input;
+                year = input;
             }
             else
             {
-            AnsiConsole.MarkupLine("[bold red]Invalid input. Please enter a valid year.[/]");
+                AnsiConsole.MarkupLine("[bold red]Invalid input. Please enter a valid year[/]");
             }
         }
 
         int yearInt = int.Parse(year);
-        //Display revenue by month
+        // Display revenue by month
         var panel1 = new Panel("")
             .Header("[bold green]Revenue by month[/]");
         panel1.Expand();
         AnsiConsole.Render(panel1);
         // Display revenue by month of year
         RevenueByMotnhOfYear(yearInt);
-        //Display revenue by category
+        // Display revenue by category
         var panel2 = new Panel("")
             .Header("[bold green]Revenue by category[/]");
         panel2.Expand();
@@ -126,6 +126,7 @@ public static class DashboardController
         // Display revenue by category of year
         RevenueByCategory(yearInt);
     }
+
 
     // Revenue by month of year
     private static void RevenueByMotnhOfYear(int yearInt)

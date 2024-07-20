@@ -431,7 +431,6 @@ class Menu
             Padding = new Padding(1, 1, 1, 1),
         };
         panel.Expand();
-        AnsiConsole.Write(panel);
         var table = new Table()
         {
             Border = TableBorder.Rounded,

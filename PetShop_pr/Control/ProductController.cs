@@ -40,47 +40,95 @@ public static class ProductController
 
     // Show product list for store manager
     private static void ShowProduct()
+{
+    Console.Clear();
+    using var db = new ApplicationDbContext();
+    var products = db.Products.Include(p => p.Category).ToList();
+    if (products.Count == 0)
+    {
+        AnsiConsole.Markup("[bold yellow]No product found! Press any key to back[/]");
+        Console.ReadKey();
+        return;
+    }
+    int pageSize = 5;
+    int currentPage = 1;
+    int totalPages = (int)Math.Ceiling((double)products.Count / pageSize);
+
+    // Loop to show product list
+    while (true)
     {
         Console.Clear();
-        using var db = new ApplicationDbContext();
-        var products = db.Products.Include(p => p.Category).ToList();
-        var table = new Table();
-        table.AddColumn("ID");
-        table.AddColumn("Name");
-        table.AddColumn("Price");
-        table.AddColumn("Description");
-        table.AddColumn("Stock");
-        table.AddColumn("Category");
-        // Add product to table
-        foreach (var product in products)
+        AnsiConsole.MarkupLine($"[bold green]Found {products.Count} products[/]");
+        var table = new Table()
         {
-            table.AddRow(product.Id.ToString(), product.Name, product.Price.ToString(), product.Description, product.Stock.ToString(), product.Category.Name);
-        }
-        AnsiConsole.Render(table);
+            Title = new TableTitle($"[bold yellow]Page {currentPage}/{totalPages}[/]"),
+        };
+        table.AddColumn("[bold]ID[/]");
+        table.AddColumn("[bold]Name[/]");
+        table.AddColumn("[bold]Price[/]");
+        table.AddColumn("[bold]Description[/]");
+        table.AddColumn("[bold]Stock[/]");
+        table.AddColumn("[bold]Category[/]");
+        Console.WriteLine();
+        Console.WriteLine();
 
-        // Option to edit or add product or back
-        AnsiConsole.MarkupLine("[bold yellow]1. Edit product[/]");
-        AnsiConsole.MarkupLine("[bold yellow]2. Add product[/]");
-        AnsiConsole.MarkupLine("[bold yellow]0. Back[/]");
-        AnsiConsole.Markup("[bold green]Enter your choice:[/]");
-        string choice = Console.ReadLine();
-        // Switch case for user choice
-        switch (choice)
+        // Loop to show product list in each page
+        for (int i = (currentPage - 1) * pageSize; i < currentPage * pageSize && i < products.Count; i++)
         {
-            case "1":
-                EditProductManager();//Call edit product function
-                break;
-            case "2":
-                AddProduct();//Call add product function
-                break;
-            case "0":
-                return;
-            default:
-                AnsiConsole.Markup("[bold red]Invalid choice. Press any key to continue.[/]");
-                Console.ReadKey();
-                break;
+            var product = products[i];
+            table.AddRow(
+                product.Id.ToString(),
+                product.Name,
+                product.Price.ToString(),
+                product.Description,
+                product.Stock.ToString(),
+                product.Category.Name
+            );
+        }
+        table.Expand();
+        AnsiConsole.Write(table);
+
+        Console.WriteLine();
+        // Show page navigation and action instruction for customer
+        AnsiConsole.MarkupLine("[bold]Press '[/][bold red]CTRL + P[/][bold]' for previous page, '[/][bold red]CTRL + N[/][bold]' for next page[/]");
+        AnsiConsole.MarkupLine("[bold]Press '[/][bold green]CTRL + E[/][bold]' to edit product[/]");
+        AnsiConsole.MarkupLine("[bold]Press '[/][bold green]CTRL + A[/][bold]' to add product[/]");
+        AnsiConsole.MarkupLine("[bold]Press [yellow]ESC[/] key to back.[/]");
+        // Read key input from customer
+        var keyInfo = Console.ReadKey(true);
+        if ((keyInfo.Modifiers & ConsoleModifiers.Control) != 0)
+        {
+            switch (keyInfo.Key)
+            {
+                case ConsoleKey.P:
+                    if (currentPage > 1)
+                    {
+                        currentPage--;
+                        table.Rows.Clear();
+                    }
+                    break;
+                case ConsoleKey.N:
+                    if (currentPage < totalPages)
+                    {
+                        currentPage++;
+                        table.Rows.Clear();
+                    }
+                    break;
+                case ConsoleKey.E:
+                    EditProductManager();//Call edit product function
+                    break;
+                case ConsoleKey.A:
+                    AddProduct();//Call add product function
+                    break;
+            }
+        }
+        else if (keyInfo.Key == ConsoleKey.Escape)
+        {
+            return;
         }
     }
+}
+
 
     // Add product function
     public static void AddProduct()
@@ -91,20 +139,24 @@ public static class ProductController
         // Get product name
         AnsiConsole.Markup("[bold green]Enter product name:[/]");
         string name = Console.ReadLine();
-        while (string.IsNullOrWhiteSpace(name))
+        while (!DataValidator.ValidateProductName(name))
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product name.[/]");
             AnsiConsole.Markup("[bold green]Enter product name:[/]");
             name = Console.ReadLine();
         }
-        
         product.Name = name;
 
         // Get product price
         AnsiConsole.Markup("[bold green]Enter product price (Max 1.000.000): [/]");
         decimal price;
-        while (!decimal.TryParse(Console.ReadLine(), out price) || price <= 0 || price > 1000000)
+        while (true)
         {
+            string priceInput = Console.ReadLine();
+            if (DataValidator.ValidatePrice(priceInput) && decimal.TryParse(priceInput, out price) && price <= 1000000)
+            {
+                break;
+            }
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid price.[/]");
             AnsiConsole.Markup("[bold green]Enter product price (Max 1.000.000): [/]");
         }
@@ -113,7 +165,7 @@ public static class ProductController
         // Get product description
         AnsiConsole.Markup("[bold green]Enter product description:[/]");
         string description = Console.ReadLine();
-        while (string.IsNullOrWhiteSpace(description))
+        while (!DataValidator.ValidateDescriptionProduct(description))
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product description.[/]");
             AnsiConsole.Markup("[bold green]Enter product description: [/]");
@@ -124,8 +176,13 @@ public static class ProductController
         // Get product stock
         AnsiConsole.Markup("[bold green]Enter product quantity (Max 1.000.000): [/]");
         int stock;
-        while (!int.TryParse(Console.ReadLine(), out stock) || stock <= 0 || stock > 1000000)
+        while (true)
         {
+            string stockInput = Console.ReadLine();
+            if (DataValidator.ValidateQuantity(stockInput) && int.TryParse(stockInput, out stock) && stock <= 1000000)
+            {
+                break;
+            }
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid quantity.[/]");
             AnsiConsole.Markup("[bold green]Enter product quantity(Max 1.000.000): [/]");
         }
@@ -137,10 +194,20 @@ public static class ProductController
         {
             AnsiConsole.Markup("[bold green]Enter product category:[/]");
             string categoryName = Console.ReadLine();
+
+            // Validate category name
+            while (!DataValidator.ValidateCategoryName(categoryName))
+            {
+                AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product category.[/]");
+                AnsiConsole.Markup("[bold green]Enter product category:[/]");
+                categoryName = Console.ReadLine();
+            }
+
+            // Find category by name in database
             category = db.Categories.FirstOrDefault(c => c.Name == categoryName);
             if (category == null)
             {
-            AnsiConsole.Markup("[bold red]Category not found![/]");
+                AnsiConsole.MarkupLine("[bold red]Category not found![/]");
             }
         }
 
@@ -152,28 +219,33 @@ public static class ProductController
             product.Category = category;
             db.Products.Add(product);
             db.SaveChanges();
-            AnsiConsole.Markup("[bold green]Product added successfully!, press any key to back[/]");
+            AnsiConsole.Markup("[bold green]Product added successfully! Press any key to go back[/]");
             Console.ReadKey();
         }
         else
         {
-            AnsiConsole.Markup("[bold yellow]Product not added!, press any key to back[/]");
+            AnsiConsole.Markup("[bold yellow]Product not added! Press any key to go back[/]");
             Console.ReadKey();
         }
     }
+
     // Edit product function
-    public static void EditProductManager()
+   public static void EditProductManager()
     {
         Console.Clear();
-        var Panel = new Panel("[bold green]Edit Product[/]");
+        var panel = new Panel("[bold green]Edit Product[/]");
         using var db = new ApplicationDbContext();
         int productId;
+
         AnsiConsole.Markup("[bold green]Enter product ID to edit:[/]");
-        while (!int.TryParse(Console.ReadLine(), out productId))
+        string input = Console.ReadLine();
+        while (!DataValidator.ValidateID(input) || !int.TryParse(input, out productId))
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product ID.[/]");
             AnsiConsole.Markup("[bold green]Enter product ID to edit:[/]");
+            input = Console.ReadLine();
         }
+
         // Find the product by ID
         var product = db.Products.FirstOrDefault(p => p.Id == productId);
         if (product == null)
@@ -182,37 +254,39 @@ public static class ProductController
             Console.ReadKey();
             return;
         }
+
         // Show product information
         while (true)
         {
             Console.Clear();
-            Menu.ProductEditMenu(productId);//Call product edit menu
+            Menu.ProductEditMenu(productId); // Call product edit menu
             AnsiConsole.Markup("[bold green]Enter your choice:[/]");
             string choice = Console.ReadLine();
+
             // Switch case for user choice
             switch (choice)
             {
-            case "1":
-                EditProductName(product);//Call edit product name function
-                break;
-            case "2":
-                EditProductPrice(product);//Call edit product price function
-                break;
-            case "3":
-                EditProductDescription(product);//Call edit product description function
-                break;
-            case "4":
-                EditProductStock(product);//Call edit product stock function
-                break;
-            case "5":
-                EditProductCategory(product);//Call edit product category function
-                break;
-            case "0":
-                return;
-            default:
-                AnsiConsole.Markup("[bold red]Invalid choice. Press any key to continue.[/]");
-                Console.ReadKey();
-                break;
+                case "1":
+                    EditProductName(product); // Call edit product name function
+                    break;
+                case "2":
+                    EditProductPrice(product); // Call edit product price function
+                    break;
+                case "3":
+                    EditProductDescription(product); // Call edit product description function
+                    break;
+                case "4":
+                    EditProductStock(product); // Call edit product stock function
+                    break;
+                case "5":
+                    EditProductCategory(product); // Call edit product category function
+                    break;
+                case "0":
+                    return;
+                default:
+                    AnsiConsole.Markup("[bold red]Invalid choice. Press any key to continue.[/]");
+                    Console.ReadKey();
+                    break;
             }
             db.SaveChanges();
         }
@@ -222,144 +296,176 @@ public static class ProductController
     {
         using var db = new ApplicationDbContext();
         Category category = null;
+
         while (category == null)
         {
             AnsiConsole.Markup("[bold green]Enter new product category:[/]");
             string categoryName = Console.ReadLine();
-            // Find category by name in database
-            while (string.IsNullOrWhiteSpace(categoryName))//Check if category name is null or empty
+
+            // Validate category name
+            while (!DataValidator.ValidateCategoryName(categoryName))
             {
-            AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product category.[/]");
-            AnsiConsole.Markup("[bold green]Enter new product category:[/]");
-            categoryName = Console.ReadLine();
+                AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product category.[/]");
+                AnsiConsole.Markup("[bold green]Enter new product category:[/]");
+                categoryName = Console.ReadLine();
             }
+
+            // Find category by name in database
             category = db.Categories.FirstOrDefault(c => c.Name == categoryName);
             if (category == null)
             {
-            AnsiConsole.Markup("[bold red]Category not found![/]");
+                AnsiConsole.Markup("[bold red]Category not found![/]");
             }
         }
+
         // Confirm updating product category
         AnsiConsole.Markup("[bold yellow]Are you sure you want to update? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
             product.Category = category;
-            AnsiConsole.Markup("[bold green]Product updated successfully!, press any key to back[/]");
+            AnsiConsole.Markup("[bold green]Product updated successfully! Press any key to go back[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.Markup("[bold yellow]Product category not updated!, press any key to back[/]");
+            AnsiConsole.Markup("[bold yellow]Product category not updated! Press any key to go back[/]");
             Console.ReadKey();
         }
     }
+
 
     // Edit product stock function for store manager
     private static void EditProductStock(Product product)
     {
         AnsiConsole.Markup("[bold green]Enter new product stock:[/]");
         int stock;
+        string input;
+
         // Get new product stock
-        while (!int.TryParse(Console.ReadLine(), out stock) || stock <= 0 || stock > 1000000)//Check if stock is not a number or less than 0 or greater than 1.000.000
+        while (true)
         {
+            input = Console.ReadLine();
+            if (DataValidator.ValidateQuantity(input) && int.TryParse(input, out stock) && stock <= 1000000)
+            {
+                break;
+            }
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid quantity (Max 1.000.000).[/]");
             AnsiConsole.Markup("[bold green]Enter new product stock:[/]");
         }
+
         // Confirm updating product stock
         AnsiConsole.Markup("[bold yellow]Are you sure you want to change? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
             product.Stock = stock;
-            AnsiConsole.Markup("[bold green]Product updated successfully!, press any key to back[/]");
+            AnsiConsole.Markup("[bold green]Product updated successfully! Press any key to go back[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.Markup("[bold yellow]Product stock not updated!, press any key to back[/]");
+            AnsiConsole.Markup("[bold yellow]Product stock not updated! Press any key to go back[/]");
             Console.ReadKey();
         }
     }
+
     // Edit product description function
     private static void EditProductDescription(Product product)
     {
         AnsiConsole.Markup("[bold green]Enter new product description:[/]");
         string description = Console.ReadLine();
-        while (string.IsNullOrWhiteSpace(description))//Check if description is null or empty
+
+        // Validate product description
+        while (!DataValidator.ValidateDescriptionProduct(description))
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product description.[/]");
             AnsiConsole.Markup("[bold green]Enter new product description:[/]");
             description = Console.ReadLine();
         }
+
         // Confirm updating product description
         AnsiConsole.Markup("[bold yellow]Are you sure you want to update? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
             product.Description = description;
-            AnsiConsole.Markup("[bold green]Product updated successfully!, press any key to back[/]");
+            AnsiConsole.Markup("[bold green]Product updated successfully! Press any key to go back[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.Markup("[bold yellow]Product description not updated!, press any key to back[/]");
+            AnsiConsole.Markup("[bold yellow]Product description not updated! Press any key to go back[/]");
             Console.ReadKey();
         }
     }
+
 
     // Edit product price function
     private static void EditProductPrice(Product product)
     {
         AnsiConsole.Markup("[bold green]Enter new product price:[/]");
         decimal price;
-        while (!decimal.TryParse(Console.ReadLine(), out price) || price <= 0 || price > 1000000)//Check if price is not a number or less than 0 or greater than 1.000.000
+
+        // Validate product price
+        while (true)
         {
+            string input = Console.ReadLine();
+            if (DataValidator.ValidatePrice(input) && decimal.TryParse(input, out price) && price <= 1000000)
+            {
+                break;
+            }
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid price (Max 1.000.000).[/]");
             AnsiConsole.Markup("[bold green]Enter new product price:[/]");
         }
+
         // Confirm updating product price
         AnsiConsole.Markup("[bold yellow]Are you sure you want to update? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
             product.Price = price;
-            AnsiConsole.Markup("[bold green]Product updated successfully!, press any key to back[/]");
+            AnsiConsole.Markup("[bold green]Product updated successfully! Press any key to go back[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.Markup("[bold yellow]Product price not updated!, press any key to back[/]");
+            AnsiConsole.Markup("[bold yellow]Product price not updated! Press any key to go back[/]");
             Console.ReadKey();
         }
     }
+
 
     // Edit product name function
     private static void EditProductName(Product product)
     {
         AnsiConsole.Markup("[bold green]Enter new product name:[/]");
         string name = Console.ReadLine();
-        while (string.IsNullOrWhiteSpace(name))//Check if name is null or empty
+
+        // Validate product name
+        while (!DataValidator.ValidateProductName(name))
         {
             AnsiConsole.MarkupLine("[bold red]Invalid input! Please enter a valid product name.[/]");
             AnsiConsole.Markup("[bold green]Enter new product name:[/]");
             name = Console.ReadLine();
         }
+
         // Confirm updating product name
         AnsiConsole.Markup("[bold yellow]Are you sure you want to update? ([/][bold green]Y[/]/[bold red]N[/])");
         string confirm = Console.ReadLine();
         if (confirm.ToUpper() == "Y")
         {
             product.Name = name;
-            AnsiConsole.Markup("[bold green]Product updated successfully!, press any key to back[/]");
+            AnsiConsole.Markup("[bold green]Product updated successfully! Press any key to go back[/]");
             Console.ReadKey();
         }
         else if (confirm.ToUpper() == "N")
         {
-            AnsiConsole.Markup("[bold yellow]Product name not updated!, press any key to back[/]");
+            AnsiConsole.Markup("[bold yellow]Product name not updated! Press any key to go back[/]");
             Console.ReadKey();
         }
     }
+
 
     // Show product by ID
     public static Table ShowProducById(int productId)
